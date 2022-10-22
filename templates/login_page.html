@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="pl">
+    <head>
+        <meta charset="utf-8">
+        
+        <title>Logowanie</title>
+        
+        <style>
+            .center {
+                margin: auto;
+                border: 3px solid #bebebe;
+                padding: 10px;
+                text-align: center;
+            }
+
+            .pad{
+                padding: 10%;
+            }
+        </style>
+    </head>
+
+
+    <body class="pad">
+
+        <div class="center">
+            <h1>Zaloguj się</h1>
+            
+            <form method="POST", action='/logIn' enctype="multipart/form-data">
+                <label for="username">Nazwa użytkownika</label>
+                <input type="text" id="username" name="username">
+                <br><br>
+                <label for="password">Hasło</label>
+                <input type="password" id="password" name="password">
+                <br><br>
+                <input type="submit" value="Zaloguj">
+            </form>
+            <br>
+            <!--
+            <a href="register_page">
+                <button class="btn btn-primary btn-lg">Zarejestruj się</button>
+            </a>
+            -->
+            <a href="/">
+                <button class="btn btn-primary btn-lg">Powrót</button>
+            </a>
+        </div>
+
+    </body>
+</html>

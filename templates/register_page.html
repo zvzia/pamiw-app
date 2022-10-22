@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="pl">
+    <head>
+        <meta charset="utf-8">
+        <title>Rejestracja</title>
+        
+        <style>
+            .center {
+                margin: auto;
+                border: 3px solid #bebebe;
+                padding: 10px;
+                text-align: center;
+            }
+
+            .pad{
+                padding: 10%;
+            }
+        </style>
+    </head>
+
+
+    <body class="pad">
+
+        <div class="center">
+            <h1>Zarejestruj się</h1>
+            
+            <form method="POST" , enctype="multipart/form-data" action='/register'>
+                <label for="username">Nazwa użytkownika</label>
+                <input type="text" id="username" name="username">
+                <br><br>
+                <label for="password">Hasło</label>
+                <input type="password" id="password" name="password">
+                <br><br>
+                <label for="password_retype">Powtórz hasło</label>
+                <input type="password" id="password_retype" name="password_retype">
+                <br><br>
+                <input type="submit" value="Zarejestruj">
+              </form>
+
+            <br>
+            <a href="/">
+                <button class="btn btn-primary btn-lg">Powrót</button>
+            </a>
+        </div>
+
+    </body>
+</html>
