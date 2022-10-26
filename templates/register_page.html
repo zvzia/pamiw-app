@@ -13,7 +13,52 @@
             }
 
             .pad{
-                padding: 10%;
+                padding-top: 10%;
+                padding-left: 30%;
+                padding-right: 30%;
+            }
+
+            .button {
+                border: none;
+                color: white;
+                padding: 15px 32px;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                font-size: 16px;
+                margin: 4px 2px;
+                transition-duration: 0.4s;
+                cursor: pointer;
+                background-color: white; 
+                color: black; 
+                border: 2px solid rgb(80, 80, 80);
+                }
+                
+            .button:hover {
+                background-color: rgb(80, 80, 80);
+                color: white;
+            }
+
+            input {
+            border: 1px solid transparent;
+            background-color: #f1f1f1;
+            padding: 10px;
+            font-size: 16px;
+            }
+
+            input[type=text] {
+            background-color: #f1f1f1;
+            width: 30%;
+            }
+            input[type=password] {
+            background-color: #f1f1f1;
+            width: 30%;
+            }
+
+            input[type=submit] {
+            background-color: rgb(80, 80, 80);
+            color: #fff;
+            cursor: pointer;
             }
         </style>
     </head>
@@ -25,21 +70,21 @@
             <h1>Zarejestruj się</h1>
             
             <form method="POST" , enctype="multipart/form-data" action='/register'>
-                <label for="username">Nazwa użytkownika</label>
+                <label for="username">Nazwa użytkownika:</label><br>
                 <input type="text" id="username" name="username">
                 <br><br>
-                <label for="password">Hasło</label>
+                <label for="password">Hasło:</label><br>
                 <input type="password" id="password" name="password">
                 <br><br>
-                <label for="password_retype">Powtórz hasło</label>
+                <label for="password_retype">Powtórz hasło:</label><br>
                 <input type="password" id="password_retype" name="password_retype">
                 <br><br>
-                <input type="submit" value="Zarejestruj">
+                <input class="button" type="submit" value="Zarejestruj">
               </form>
 
             <br>
             <a href="/">
-                <button class="btn btn-primary btn-lg">Powrót</button>
+                <button class="button">Powrót</button>
             </a>
         </div>
 

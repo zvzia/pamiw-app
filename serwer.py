@@ -4,7 +4,10 @@ from http.client import HTTP_PORT
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
 from numpy import record
-from database.db import create_table, insert_record, fetch_records, fetch_record_by_username
+from database.user_db import *
+from database.reservation_db import *
+from database.car_db import *
+from database.administrator_db import *
 
 HOST = "localhost"
 PORT = 8080
@@ -18,7 +21,7 @@ def read_html_template(path):
     return file
 
 def check_login_info(username, password):
-    records = fetch_record_by_username(username)
+    records = fetch_user_record_by_username(username)
     if (len(records) > 0):
         passwordInDb = records[0][0]
         if (password == passwordInDb):
@@ -54,6 +57,14 @@ class MyServer(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(bytes(file, 'utf-8'))
 
+        if self.path == '/admin_start_page':
+            self.path = './templates/admin_start_page.html'
+            file = read_html_template(self.path)
+            self.send_response(200, "OK")
+            self.send_header('Content-type', 'text/html; charset=utf-8')
+            self.end_headers()
+            self.wfile.write(bytes(file, 'utf-8'))
+
     def do_POST(self):
         if self.path == '/logIn':
             ctype, pdict = cgi.parse_header(self.headers.get('content-type'))
@@ -64,8 +75,6 @@ class MyServer(BaseHTTPRequestHandler):
                 username = fields.get("username")[0]
                 password = fields.get("password")[0]
 
-            # tworzenie tabeli jesli pierwszy raz
-            create_table()
 
             #sprawdzanie zgodnosci hasla
             verification = check_login_info(username, password)
@@ -93,14 +102,12 @@ class MyServer(BaseHTTPRequestHandler):
 
                 
                 if password == passwordRetype:
-                    #tworzenie tabeli jesli pierwszy raz
-                    create_table()
 
                     #sprawdzanie czy juz jest taki uzytkownik
-                    records = fetch_record_by_username(username)
+                    records = fetch_user_record_by_username(username)
                     if len(records) < 0 :
                         #dodawanie rekordu
-                        insert_record(username, password)
+                        insert_user_record(username, password)
                         html = f"<html><head></head><body><h1>Poprawna rejestracja</h1></body></html>"
                     else:
                         html = f"<html><head></head><body><h1>Taki uzytkownik juz istnieje</h1></body></html>"
@@ -116,6 +123,11 @@ class MyServer(BaseHTTPRequestHandler):
 
 
 if __name__ == "__main__":
+    create_user_table()
+    create_car_table()
+    create_reservation_table()
+    create_administrator_table()
+
     server = HTTPServer((HOST, PORT), MyServer)
     print(f"Server started http://{HOST}:{PORT}")
     try:
@@ -125,11 +137,5 @@ if __name__ == "__main__":
         print("Server stopped successfully")
         sys.exit(0)
 
-"""
-server = HTTPServer((HOST, PORT), MyServer)
-print("Server running")
-server.serve_forever()
-server.server_close()
-print("Server stopped")
-"""
+
  
