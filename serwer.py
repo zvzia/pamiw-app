@@ -1,7 +1,9 @@
+import re
 import sys
 import cgi
 from http.client import HTTP_PORT
 from http.server import HTTPServer, BaseHTTPRequestHandler
+
 
 from numpy import record
 from database.user_db import *
@@ -29,6 +31,19 @@ def check_login_info(username, password):
     
     return False
 
+def insert_car_table(file):
+    data = fetch_car_records()
+    html_string =""
+    for row in data:
+        html_string +="<tr>"
+        for col in row:
+            html_string += "<td>" + str(col) + "</td>"
+        html_string +="</tr>"
+    
+    result = file.replace("tabelatutaj", html_string)
+    return result
+
+
 
 class MyServer(BaseHTTPRequestHandler):
 
@@ -36,6 +51,9 @@ class MyServer(BaseHTTPRequestHandler):
         if self.path == '/':
             self.path = './templates/start_page.html'
             file = read_html_template(self.path)
+            
+            file = insert_car_table(file)
+
             self.send_response(200, "OK")
             self.send_header('Content-type', 'text/html; charset=utf-8')
             self.end_headers()
@@ -59,6 +77,14 @@ class MyServer(BaseHTTPRequestHandler):
 
         if self.path == '/admin_start_page':
             self.path = './templates/admin_start_page.html'
+            file = read_html_template(self.path)
+            self.send_response(200, "OK")
+            self.send_header('Content-type', 'text/html; charset=utf-8')
+            self.end_headers()
+            self.wfile.write(bytes(file, 'utf-8'))
+
+        if self.path == '/admin_start_page/cars':
+            self.path = './templates/admin_car_list.html'
             file = read_html_template(self.path)
             self.send_response(200, "OK")
             self.send_header('Content-type', 'text/html; charset=utf-8')
@@ -119,6 +145,32 @@ class MyServer(BaseHTTPRequestHandler):
                 self.send_response(200, "OK")
                 self.end_headers()
                 self.wfile.write(bytes(html, "utf-8"))
+
+
+        if self.path == '/addCar':
+            ctype, pdict = cgi.parse_header(self.headers.get('content-type'))
+            pdict['boundary'] = bytes(pdict['boundary'], 'utf-8')
+
+            if ctype == 'multipart/form-data':
+                fields = cgi.parse_multipart(self.rfile, pdict)
+                brand = fields.get("brand")[0]
+                model = fields.get("model")[0]
+                car_type = fields.get("car_type")[0]
+                production_year = fields.get("production_year")[0]
+                fuel_type = fields.get("fuel_type")[0]
+                gearbox_type = fields.get("gearbox_type")[0]
+                price = fields.get("price")[0]
+                city = fields.get("city")[0]
+                model = fields.get("model")[0]
+
+            
+            insert_car_record(brand, model, car_type, production_year, fuel_type, gearbox_type, price, city)
+
+            html = f"<html><head></head><body><h1>Poprawna rejestracja</h1></body></html>"
+                
+            self.send_response(200, "OK")
+            self.end_headers()
+            self.wfile.write(bytes(html, "utf-8"))
 
 
 

@@ -6,6 +6,10 @@
         <title>Strona główna</title>
         
         <style>
+            body{
+                font-family: arial, sans-serif;
+            }
+
             .center {
                 margin: auto;
                 border: 3px solid #bebebe;
@@ -14,8 +18,6 @@
             }
 
             .pad{
-                border: 3px solid #bebebe;
-               
                 padding-left: 5%;
                 padding-right: 5%;
             }
@@ -47,28 +49,28 @@
 
             /*the container must be positioned relative:*/
             .autocomplete {
-            position: relative;
-            display: inline-block;
+                position: relative;
+                display: inline-block;
             }
 
             input {
-            border: 1px solid transparent;
-            background-color: #f1f1f1;
-            padding: 10px;
-            font-size: 16px;
+                border: 1px solid transparent;
+                background-color: #f1f1f1;
+                padding: 10px;
+                font-size: 16px;
             }
 
             input[type=text] {
-            background-color: #f1f1f1;
-            width: 100%;
+                background-color: #f1f1f1;
+                width: 100%;
             }
 
             input[type=submit] {
-            background-color: rgb(124, 124, 124);
-            color: #fff;
-            transition-duration: 0.4s;
-            cursor: pointer;
-            border: 2px solid rgb(80, 80, 80);
+                background-color: rgb(124, 124, 124);
+                color: #fff;
+                transition-duration: 0.4s;
+                cursor: pointer;
+                border: 2px solid rgb(80, 80, 80);
             }
 
             input[type=submit]:hover {
@@ -77,33 +79,48 @@
             }
 
             .autocomplete-items {
-            position: absolute;
-            border: 1px solid #d4d4d4;
-            border-bottom: none;
-            border-top: none;
-            z-index: 99;
-            /*position the autocomplete items to be the same width as the container:*/
-            top: 100%;
-            left: 0;
-            right: 0;
+                position: absolute;
+                border: 1px solid #d4d4d4;
+                border-bottom: none;
+                border-top: none;
+                z-index: 99;
+                /*position the autocomplete items to be the same width as the container:*/
+                top: 100%;
+                left: 0;
+                right: 0;
             }
 
             .autocomplete-items div {
-            padding: 10px;
-            cursor: pointer;
-            background-color: #fff; 
-            border-bottom: 1px solid #d4d4d4; 
+                padding: 10px;
+                cursor: pointer;
+                background-color: #fff; 
+                border-bottom: 1px solid #d4d4d4; 
             }
 
             /*when hovering an item:*/
             .autocomplete-items div:hover {
-            background-color: #e9e9e9; 
+                background-color: #e9e9e9; 
             }
 
             /*when navigating through the items using the arrow keys:*/
             .autocomplete-active {
-            background-color: rgb(80, 80, 80) !important; 
-            color: #ffffff; 
+                background-color: rgb(80, 80, 80) !important; 
+                color: #ffffff; 
+            }
+
+            table {
+                border-collapse: collapse;
+                width: 100%;
+            }
+
+            td, th {
+                border: 1px solid #dddddd;
+                text-align: left;
+                padding: 8px;
+            }
+
+            tr:nth-child(even) {
+                background-color: #dddddd;
             }
         </style>
     </head>
@@ -132,7 +149,24 @@
                 </form>
                 <br>
             </div>
+
+            <div>
+                <table>
+                    <tr>
+                        <th>Marka</th>
+                        <th>Model</th>
+                        <th>Typ samochodu</th>
+                        <th>Rok produkcji</th>
+                        <th>Typ paliwa</th>
+                        <th>Skrzynia biegów</th>
+                        <th>Cena za dobę</th>
+                        <th>Miasto</th>
+                    </tr>
+                    tabelatutaj
+                </table>
+            </div>
         </div>
+
 
         <script>
             function autocomplete(inp, arr) {

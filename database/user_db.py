@@ -31,7 +31,6 @@ def fetch_user_records():
     return data
 
 def fetch_user_record_by_username(username):
-    """function to fetch User records"""
     data = cursor.execute("SELECT password FROM User WHERE username = ?", [username])
     records = cursor.fetchall()
     return records

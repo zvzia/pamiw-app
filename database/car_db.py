@@ -24,11 +24,16 @@ def create_car_table():
     cursor.executescript(table_script)
     connection.commit()
 
-def insert_car_record(brand, model, car_type, production_year, fuel_type, gearbox_type, city):
-    cursor.execute("INSERT INTO Car(ubrand, model, car_type, production_year, fuel_type, gearbox_type, city) VALUES(?, ?, ?, ?, ?, ?, ?)",
-                   (brand, model, car_type, production_year, fuel_type, gearbox_type, city))
+def insert_car_record(brand, model, car_type, production_year, fuel_type, gearbox_type, price, city):
+    cursor.execute("INSERT INTO Car(brand, model, car_type, production_year, fuel_type, gearbox_type, price, city) VALUES(?, ?, ?, ?, ?, ?, ?, ?)",
+                   (brand, model, car_type, production_year, fuel_type, gearbox_type, price, city))
     connection.commit()
 
 def fetch_car_records():
-    data = cursor.execute("SELECT * FROM Car")
+    data = cursor.execute("SELECT brand, model, car_type, production_year, fuel_type, gearbox_type, price, city FROM Car")
+    records = cursor.fetchall()
+    return records
+
+def fetch_as_html():
+    data = cursor.execute(".mode html .headers on SELECT brand, model, car_type, production_year, fuel_type, gearbox_type, price, city FROM Car")
     return data

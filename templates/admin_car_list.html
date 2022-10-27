@@ -6,6 +6,10 @@
         <title>Admin</title>
         
         <style>
+            body{
+                font-family: arial, sans-serif;
+            }
+            
             .center {
                 margin: auto;
                 border: 3px solid #bebebe;
@@ -25,10 +29,27 @@
     <body class="pad">
 
         <div>
-            <h1>Samochody</h1>
-            <ol>
-                <li></li>
-            </ol>
+            <h1>dodaj:</h1>
+            <form method="POST", action='/addCar' enctype="multipart/form-data">
+                <label for="brand">marka</label><br>
+                <input type="text" id="brand" name="brand"><br><br>
+                <label for="model">model</label><br>
+                <input type="text" id="model" name="model"><br><br>
+                <label for="car_type">Typ</label><br>
+                <input type="text" id="car_type" name="car_type"><br><br>
+                <label for="production_year">Rok produkcji</label><br>
+                <input type="text" id="production_year" name="production_year"><br><br>
+                <label for="fuel_type">Typ paliwa</label><br>
+                <input type="text" id="fuel_type" name="fuel_type"><br><br>
+                <label for="gearbox_type">Skrzynia biegów</label><br>
+                <input type="text" id="gearbox_type" name="gearbox_type"><br><br>
+                <label for="price">cena</label><br>
+                <input type="text" id="price" name="price"><br><br>
+                <label for="city">miasto</label><br>
+                <input type="text" id="city" name="city"><br><br>
+                <input type="submit" value="Submit">
+              </form> 
+
         </div>
 
     </body>
