@@ -30,7 +30,7 @@ def insert_car_record(brand, model, car_type, production_year, fuel_type, gearbo
     connection.commit()
 
 def fetch_car_records():
-    data = cursor.execute("SELECT brand, model, car_type, production_year, fuel_type, gearbox_type, price, city FROM Car")
+    data = cursor.execute("SELECT id, brand, model, car_type, production_year, fuel_type, gearbox_type, price, city FROM Car")
     records = cursor.fetchall()
     return records
 

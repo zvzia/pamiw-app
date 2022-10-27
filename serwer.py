@@ -36,8 +36,9 @@ def insert_car_table(file):
     html_string =""
     for row in data:
         html_string +="<tr>"
-        for col in row:
+        for col in row[1:]:
             html_string += "<td>" + str(col) + "</td>"
+        html_string += "<td> <a href=\"?car_id=" + str(row[0])  + "\"><button class=\"buttontransparent\">Wyświetl</button></a></td>"
         html_string +="</tr>"
     
     result = file.replace("tabelatutaj", html_string)
