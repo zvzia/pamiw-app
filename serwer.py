@@ -8,6 +8,7 @@ from database.user_db import *
 from database.reservation_db import *
 from database.car_db import *
 from database.administrator_db import *
+from passwd_crypt import *
 
 HOST = "localhost"
 PORT = 8080
@@ -24,8 +25,7 @@ def check_login_info(username, password):
     records = fetch_user_record_by_username(username)
     if (len(records) > 0):
         passwordInDb = records[0][0]
-        if (password == passwordInDb):
-            return True
+        return check_password(password, passwordInDb)
     
     return False
 
@@ -105,9 +105,9 @@ class MyServer(BaseHTTPRequestHandler):
 
                     #sprawdzanie czy juz jest taki uzytkownik
                     records = fetch_user_record_by_username(username)
-                    if len(records) < 0 :
+                    if len(records) <= 0 :
                         #dodawanie rekordu
-                        insert_user_record(username, password)
+                        insert_user_record(username, hash_password(password))
                         html = f"<html><head></head><body><h1>Poprawna rejestracja</h1></body></html>"
                     else:
                         html = f"<html><head></head><body><h1>Taki uzytkownik juz istnieje</h1></body></html>"
