@@ -5,7 +5,6 @@ from http.client import HTTP_PORT
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
 
-from numpy import record
 from database.user_db import *
 from database.reservation_db import *
 from database.car_db import *
@@ -23,16 +22,22 @@ def read_html_template(path):
         file = e
     return file
 
-def check_login_info(username, password):
-    records = fetch_user_record_by_username(username)
-    if (len(records) > 0):
-        passwordInDb = records[0][0]
-        return check_password(password, passwordInDb)
-    
-    return False
 
 def insert_car_table(file):
     data = fetch_car_records()
+    html_string =""
+    for row in data:
+        html_string +="<tr>"
+        for col in row[1:]:
+            html_string += "<td>" + str(col) + "</td>"
+        html_string += "<td> <a href=\"?car_id=" + str(row[0])  + "\"><button class=\"buttontransparent\">Wyświetl</button></a></td>"
+        html_string +="</tr>"
+    
+    result = file.replace("tabelatutaj", html_string)
+    return result
+
+def serach_cars(file, brand):
+    data = fetch_car_records_by_brand(brand)
     html_string =""
     for row in data:
         html_string +="<tr>"
@@ -91,6 +96,8 @@ class MyServer(BaseHTTPRequestHandler):
             self.send_header('Content-type', 'text/html; charset=utf-8')
             self.end_headers()
             self.wfile.write(bytes(file, 'utf-8'))
+
+    
 
     def do_POST(self):
         if self.path == '/logIn':
@@ -172,6 +179,26 @@ class MyServer(BaseHTTPRequestHandler):
             self.send_response(200, "OK")
             self.end_headers()
             self.wfile.write(bytes(html, "utf-8"))
+
+        if self.path == '/search_cars':
+            
+            form = cgi.FieldStorage(
+                fp=self.rfile,
+                headers=self.headers,
+                environ={'REQUEST_METHOD': 'POST'}
+            )
+            csearch = form.getvalue("csearch")
+
+            self.path = './templates/start_page.html'
+            file = read_html_template(self.path)
+            file = serach_cars(file, csearch)
+
+        
+            self.send_response(200, "OK")
+            self.end_headers()
+            self.wfile.write(bytes(file, "utf-8"))
+        
+        
 
 
 

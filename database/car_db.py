@@ -34,6 +34,9 @@ def fetch_car_records():
     records = cursor.fetchall()
     return records
 
-def fetch_as_html():
-    data = cursor.execute(".mode html .headers on SELECT brand, model, car_type, production_year, fuel_type, gearbox_type, price, city FROM Car")
-    return data
+def fetch_car_records_by_brand(brand):
+    data = cursor.execute("SELECT id, brand, model, car_type, production_year, fuel_type, gearbox_type, price, city FROM Car WHERE brand = ?", [brand])
+    records = cursor.fetchall()
+    return records
+
+
