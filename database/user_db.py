@@ -21,10 +21,6 @@ def create_user_table():
     cursor.executescript(table_script)
     connection.commit()
 
-def insert_user_record(username, password):
-    cursor.execute("INSERT INTO User(username, password) VALUES(?, ?)",
-                   (username, password))
-    connection.commit()
 
 def insert_user_record(username, password, name, surname, email):
     cursor.execute("INSERT INTO User(username, password, name, surname, email) VALUES(?, ?, ?, ?, ?)",

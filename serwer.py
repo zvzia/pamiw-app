@@ -64,7 +64,7 @@ class MyServer(BaseHTTPRequestHandler):
             self.send_response(200, "OK")
             self.send_header('Content-type', 'text/html; charset=utf-8')
             self.end_headers()
-            self.wfile.write(bytes(file, 'utf-8'))
+            self.wfile.write(bytes(html, 'utf-8'))
 
         if self.path == '/register_page':
             self.path = './templates/register_page.html'
@@ -111,6 +111,11 @@ class MyServer(BaseHTTPRequestHandler):
     
 
     def do_POST(self):
+        cookies = self.parse_cookies(self.headers["Cookie"])
+        if "sid" in cookies:
+            if (cookies["sid"] in SESSIONS):
+                self.user = cookies["sid"]
+                
         if self.path == '/logIn':
             ctype, pdict = cgi.parse_header(self.headers.get('content-type'))
             pdict['boundary'] = bytes(pdict['boundary'], 'utf-8')
@@ -159,7 +164,7 @@ class MyServer(BaseHTTPRequestHandler):
                     records = fetch_user_passwrd_by_username(username)
                     if len(records) <= 0 :
                         #dodawanie rekordu
-                        insert_user_record(username, hash_password(password))
+                        insert_user_record(username, hash_password(password), "", "", "")
                         html = f"<html><head></head><body><h1>Poprawna rejestracja</h1></body></html> <a href=\"/\"><button class=\"button\">Powrót</button></a></body></html>"
                     else:
                         html = f"<html><head></head><body><h1>Taki uzytkownik juz istnieje</h1></body></html> <a href=\"/register_page\"><button class=\"button\">Powrót</button></a></body></html>"
@@ -232,7 +237,7 @@ class MyServer(BaseHTTPRequestHandler):
                 
                 if password == passwordRetype:
                     delete_user_record_by_username(username)
-                    insert_user_record(username, password, name, surname, email)
+                    insert_user_record(username, hash_password(password), name, surname, email)
                     html = f"<html><head></head><body><h1>Dane zmienione</h1></body></html> <a href=\"/register_page\"><button class=\"button\">Powrót</button></a></body></html>"
 
                 else:
