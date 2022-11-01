@@ -1,5 +1,6 @@
 import bcrypt
 from database.user_db import *
+import serwer
 
 def hash_password(password):
     pwd_bytes = password.encode("utf-8")
@@ -11,9 +12,10 @@ def check_password(given_password, db_password):
     return bcrypt.checkpw(passwrd_bytes, db_password)
 
 def check_login_info(username, password):
-    records = fetch_user_record_by_username(username)
+    records = fetch_user_passwrd_by_username(username)
     if (len(records) > 0):
         passwordInDb = records[0][0]
         return check_password(password, passwordInDb)
     
     return False
+

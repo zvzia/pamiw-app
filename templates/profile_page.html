@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="pl">
+    <head>
+        <meta charset="utf-8">
+        <title>Rejestracja</title>
+        
+        <style>
+            body{
+                font-family: arial, sans-serif;
+            }
+            
+            .center {
+                margin: auto;
+                border: 3px solid #bebebe;
+                padding: 10px;
+                text-align: center;
+            }
+
+            .pad{
+                padding-top: 10%;
+                padding-left: 30%;
+                padding-right: 30%;
+            }
+
+            .button {
+                border: none;
+                color: white;
+                padding: 15px 32px;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                font-size: 16px;
+                margin: 4px 2px;
+                transition-duration: 0.4s;
+                cursor: pointer;
+                background-color: white; 
+                color: black; 
+                border: 2px solid rgb(80, 80, 80);
+                }
+                
+            .button:hover {
+                background-color: rgb(80, 80, 80);
+                color: white;
+            }
+
+            input {
+            border: 1px solid transparent;
+            background-color: #f1f1f1;
+            padding: 10px;
+            font-size: 16px;
+            }
+
+            input[type=text] {
+            background-color: #f1f1f1;
+            width: 30%;
+            }
+            input[type=password] {
+            background-color: #f1f1f1;
+            width: 30%;
+            }
+
+            input[type=submit] {
+            background-color: rgb(124, 124, 124);
+            color: #fff;
+            transition-duration: 0.4s;
+            cursor: pointer;
+            border: 2px solid rgb(80, 80, 80);
+            }
+
+            input[type=submit]:hover {
+                background-color: rgb(80, 80, 80);
+                border: 2px solid rgb(0, 0, 0);
+            }
+        </style>
+    </head>
+
+
+    <body class="pad">
+
+        <div class="center">
+            <h1>Mój profil</h1>
+            
+            <a href="/data_edit" method="post">
+                <button class="button">Edytuj moje dane</button>
+            </a>
+
+            <br>
+            <a href="/">
+                <button class="button">Powrót</button>
+            </a>
+        </div>
+
+    </body>
+</html>
