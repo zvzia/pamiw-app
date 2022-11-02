@@ -259,7 +259,7 @@ class MyServer(BaseHTTPRequestHandler):
         if not self.user:
             return "Can't Log Out: No User Logged In"
         self.cookie = "sid="
-        del serwer.SESSIONS[self.user]
+        del SESSIONS[self.user]
         return "Logged Out"
 
 
