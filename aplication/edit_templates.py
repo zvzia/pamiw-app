@@ -36,6 +36,9 @@ def insert_login_button(self, file, sessions):
         else:
             file = file.replace("$logowanie","<a href=\"login_page\"><button class=\"button\">Zaloguj się</button></a><a href=\"register_page\"><button class=\"button\">Zarejestruj się</button></a>")
             self.user = False
+    else:
+        file = file.replace("$logowanie","<a href=\"login_page\"><button class=\"button\">Zaloguj się</button></a><a href=\"register_page\"><button class=\"button\">Zarejestruj się</button></a>")
+
         
     
     return file

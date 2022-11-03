@@ -1,4 +1,3 @@
-import imp
 import re
 import sys
 import cgi
@@ -15,7 +14,7 @@ from database.administrator_db import *
 from login_service import *
 from edit_templates import *
 
-HOST = "localhost"
+HOST = "0.0.0.0"
 PORT = 8080
 SESSIONS = {}
 
