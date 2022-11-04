@@ -214,6 +214,7 @@ class MyServer(BaseHTTPRequestHandler):
             self.path = './templates/start_page.html'
             file = read_html_template(self.path)
             file = insert_serached_cars(file, csearch)
+            file = insert_login_button(self, file, SESSIONS)
 
         
             self.send_response(200, "OK")
