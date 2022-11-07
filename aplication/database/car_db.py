@@ -39,4 +39,14 @@ def fetch_car_records_by_brand(brand):
     records = cursor.fetchall()
     return records
 
+def fetch_all_brands():
+    data = cursor.execute("SELECT DISTINCT brand FROM car ORDER BY brand")
+    records = cursor.fetchall()
+    return records
+
+def fetch_all_models():
+    data = cursor.execute("SELECT DISTINCT model FROM car ORDER BY model")
+    records = cursor.fetchall()
+    return records
+
 

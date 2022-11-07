@@ -40,8 +40,26 @@ def insert_login_button(self, file, sessions):
         file = file.replace("$logowanie","<a href=\"login_page\"><button class=\"button\">Zaloguj się</button></a><a href=\"register_page\"><button class=\"button\">Zarejestruj się</button></a>")
 
         
-    
     return file
+
+
+def insert_autocomplete_data(self, file):
+    brands = fetch_all_brands()
+    models = fetch_all_models()
+    
+    html_string =""
+    
+    for brand in brands:
+        html_string += "\"" + str(brand[0]) + "\", "
+    
+    for model in models:
+        html_string += "\"" + str(model[0]) + "\", "
+    
+    html_string = html_string[:-2]
+    
+    result = file.replace("$autocompleteData", html_string)
+    return result    
+
 
 def insert_username_to_edit_data(file, username):
     result = file.replace("$username", username)

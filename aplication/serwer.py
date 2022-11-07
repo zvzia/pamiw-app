@@ -43,6 +43,7 @@ class MyServer(BaseHTTPRequestHandler):
             
             file = insert_car_table(file)
             file = insert_login_button(self, file, SESSIONS)
+            file = insert_autocomplete_data(self, file)
                 
             self.send_response(200, "OK")
             self.send_header('Content-type', 'text/html; charset=utf-8')
@@ -215,7 +216,6 @@ class MyServer(BaseHTTPRequestHandler):
             file = read_html_template(self.path)
             file = insert_serached_cars(file, csearch)
             file = insert_login_button(self, file, SESSIONS)
-
         
             self.send_response(200, "OK")
             self.end_headers()
