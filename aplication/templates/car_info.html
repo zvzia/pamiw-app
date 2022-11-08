@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="pl">
+    <head>
+        <meta charset="utf-8">
+        <title>Rejestracja</title>
+        
+        <style>
+            body{
+                font-family: arial, sans-serif;
+            }
+
+            table {
+                background-color: #ecececef;
+               /* border: 0;
+                border-collapse: collapse;*/
+            }
+            
+            td, th {
+                border: 0px;
+                text-align: left;
+                padding: 8px;
+            }
+            
+            .center {
+                margin: auto;
+                border: 3px solid #bebebe;
+                padding: 10px;
+                padding-bottom: 5%;
+                text-align: center;
+            }
+
+            #wrapper {
+                overflow: hidden;
+            }
+            #first {
+                float:left;
+            }
+            #second {
+                float: left;
+            }
+
+            .pad{
+                padding-top: 5%;
+                padding-bottom: 5%;
+                padding-left: 10%;
+                padding-right: 10%;
+            }
+
+            .button {
+                border: none;
+                color: white;
+                padding: 15px 32px;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                font-size: 16px;
+                margin: 4px 2px;
+                transition-duration: 0.4s;
+                cursor: pointer;
+                background-color: white; 
+                color: black; 
+                border: 2px solid rgb(80, 80, 80);
+                }
+                
+            .button:hover {
+                background-color: rgb(80, 80, 80);
+                color: white;
+            }
+
+            .table_right {
+                margin-left: auto; 
+                margin-right: 10%;
+            }
+        </style>
+    </head>
+
+
+    <body class="pad">
+
+        <div class="center" id="wrapper">
+            <h1>$carname</h1>
+
+            <div id="first">
+                <img src="carimage.png" width="200%"/>
+            </div>
+            <div id="seccond">
+                <table class="table_right">
+                    <tr>
+                        <td>Marka:</td>
+                        <td>$brand</td>
+                    </tr>
+                    <tr>
+                        <td>Model:</td>
+                        <td>$model</td>
+                    </tr>
+                    <tr>
+                        <td>Typ:</td>
+                        <td>$car_type</td>
+                    </tr>
+                    <tr>
+                        <td>Rok produkcji:</td>
+                        <td>$production_year</td>
+                    </tr>
+                    <tr>
+                        <td>Typ paliwa:</td>
+                        <td>$fuel_type</td>
+                    </tr>
+                    <tr>
+                        <td>Skrzynia biegów:</td>
+                        <td>$gearbox_type</td>
+                    </tr>
+                    <tr>
+                        <td>Cena za dobe::</td>
+                        <td>$price</td>
+                    </tr>
+                    <tr>
+                        <td>Miasto:</td>
+                        <td>$city</td>
+                    </tr> 
+                    
+                </table>
+
+                
+                
+            </div>
+
+            <br><br><br><br>
+            <a href="/">
+                <button class="button">Powrót</button>
+            </a>
+            <a href="/reserve_car" method="post" >
+                    <button class="button">Zarezerwuj</button>
+                </a>
+            
+            
+        </div>
+
+        
+
+    </body>
+</html>

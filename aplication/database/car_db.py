@@ -34,6 +34,11 @@ def fetch_car_records():
     records = cursor.fetchall()
     return records
 
+def fetch_car_by_id(id):
+    data = cursor.execute("SELECT id, brand, model, car_type, production_year, fuel_type, gearbox_type, price, city FROM Car WHERE id = ?", [id])
+    records = cursor.fetchall()
+    return records
+
 def fetch_car_records_by_brand(brand):
     data = cursor.execute("SELECT id, brand, model, car_type, production_year, fuel_type, gearbox_type, price, city FROM Car WHERE brand = ?", [brand])
     records = cursor.fetchall()

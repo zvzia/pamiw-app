@@ -26,6 +26,14 @@ def read_html_template(path):
         file = e
     return file
 
+def read_bytes_from_file(path):
+
+    file = open(path,"rb")
+    data = file.read()
+    file.close()
+    
+    return data
+
 
 
 
@@ -43,7 +51,7 @@ class MyServer(BaseHTTPRequestHandler):
             
             file = insert_car_table(file)
             file = insert_login_button(self, file, SESSIONS)
-            file = insert_autocomplete_data(self, file)
+            file = insert_autocomplete_data(file)
                 
             self.send_response(200, "OK")
             self.send_header('Content-type', 'text/html; charset=utf-8')
@@ -107,6 +115,29 @@ class MyServer(BaseHTTPRequestHandler):
             self.send_header('Content-type', 'text/html; charset=utf-8')
             self.end_headers()
             self.wfile.write(bytes(file, 'utf-8'))
+
+        if self.path[0:10] == '/car_info?':
+            carId = int(self.path[17:])
+            self.path = './templates/car_info.html'
+            file = read_html_template(self.path)
+
+            file = insert_car_info(file, carId)
+            
+                
+            self.send_response(200, "OK")
+            self.send_header('Content-type', 'text/html; charset=utf-8')
+            self.end_headers()
+            self.wfile.write(bytes(file, 'utf-8'))
+
+        if self.path[-4:] == '.png' or self.path[-4] == '.jpg':
+
+            self.path = "templates/" + self.path.partition("/")[-1]
+            data = read_bytes_from_file(self.path)
+            
+            self.send_response(200, "OK")
+            self.send_header('Content-type', 'image/*')
+            self.end_headers()
+            self.wfile.write(data)
 
     
 

@@ -22,8 +22,9 @@
                 padding-right: 5%;
             }
 
-            .right{
+            .menu{
                 text-align: right;
+                background-color: #f1f1f1;
             }
 
             .button {
@@ -37,9 +38,9 @@
                 margin: 4px 2px;
                 transition-duration: 0.4s;
                 cursor: pointer;
-                background-color: white; 
+                background-color: #f1f1f1; 
                 color: black; 
-                border: 2px solid rgb(80, 80, 80);
+                border: 0px solid rgb(80, 80, 80);
                 }
                 
             .button:hover {
@@ -143,14 +144,36 @@
             tr:nth-child(even) {
                 background-color: #dddddd;
             }
+
+            #wrapper {
+                overflow: hidden;
+            }
+            #first {
+                float:left;
+            }
+            #second {
+                float: right;
+            }
         </style>
     </head>
 
 
     <body>
 
-        <div class="right">
-            $logowanie
+        <div class="menu" id="wrapper">
+            <div id="first">
+                <a href="/oferta" method="post">
+                    <button class="button">Oferta</button></a>
+                <a href="/miasta" method="post">
+                    <button class="button">Miasta</button></a>
+                <a href="/oNas" method="post">
+                    <button class="button">O nas</button></a>
+            </div>
+
+            <div id="second">
+                $logowanie
+            </div>
+            
             
         </div>
         <br>
