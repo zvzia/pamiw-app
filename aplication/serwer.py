@@ -46,7 +46,7 @@ class MyServer(BaseHTTPRequestHandler):
                 self.user = cookies["sid"]
 
         if self.path == '/':
-            self.path = './templates/start_page.html'
+            self.path = './templates/customer/start_page.html'
             file = read_html_template(self.path)
 
             file = insert_login_button(self, file, SESSIONS)
@@ -57,7 +57,7 @@ class MyServer(BaseHTTPRequestHandler):
             self.wfile.write(bytes(file, 'utf-8'))  
 
         if self.path == '/oferta':
-            self.path = './templates/offer.html'
+            self.path = './templates/customer/offer.html'
             file = read_html_template(self.path)
             
             file = insert_car_table(file)
@@ -70,7 +70,7 @@ class MyServer(BaseHTTPRequestHandler):
             self.wfile.write(bytes(file, 'utf-8'))  
 
         if self.path == '/login_page':
-            self.path = './templates/login_page.html'
+            self.path = './templates/customer/login_page.html'
             file = read_html_template(self.path)
             self.send_response(200, "OK")
             self.send_header('Content-type', 'text/html; charset=utf-8')
@@ -86,7 +86,7 @@ class MyServer(BaseHTTPRequestHandler):
             self.wfile.write(bytes(html, 'utf-8'))
 
         if self.path == '/register_page':
-            self.path = './templates/register_page.html'
+            self.path = './templates/customer/register_page.html'
             file = read_html_template(self.path)
             self.send_response(200, "OK")
             self.send_header('Content-type', 'text/html; charset=utf-8')
@@ -94,7 +94,7 @@ class MyServer(BaseHTTPRequestHandler):
             self.wfile.write(bytes(file, 'utf-8'))
 
         if self.path == '/admin_start_page':
-            self.path = './templates/admin_start_page.html'
+            self.path = './templates/admin/admin_start_page.html'
             file = read_html_template(self.path)
             self.send_response(200, "OK")
             self.send_header('Content-type', 'text/html; charset=utf-8')
@@ -102,7 +102,7 @@ class MyServer(BaseHTTPRequestHandler):
             self.wfile.write(bytes(file, 'utf-8'))
 
         if self.path == '/admin_start_page/cars':
-            self.path = './templates/admin_car_list.html'
+            self.path = './templates/admin/admin_car_list.html'
             file = read_html_template(self.path)
             self.send_response(200, "OK")
             self.send_header('Content-type', 'text/html; charset=utf-8')
@@ -110,7 +110,7 @@ class MyServer(BaseHTTPRequestHandler):
             self.wfile.write(bytes(file, 'utf-8'))
 
         if self.path == '/profile_page':
-            self.path = './templates/profile_page.html'
+            self.path = './templates/customer/profile_page.html'
             file = read_html_template(self.path)
             self.send_response(200, "OK")
             self.send_header('Content-type', 'text/html; charset=utf-8')
@@ -118,7 +118,7 @@ class MyServer(BaseHTTPRequestHandler):
             self.wfile.write(bytes(file, 'utf-8'))
 
         if self.path == '/data_edit':
-            self.path = './templates/data_edit.html'
+            self.path = './templates/customer/data_edit.html'
             file = read_html_template(self.path)
             username = SESSIONS[self.user][0]
             file = file.replace("$username", username)
@@ -129,7 +129,7 @@ class MyServer(BaseHTTPRequestHandler):
 
         if self.path[0:10] == '/car_info?':
             carId = int(self.path[17:])
-            self.path = './templates/car_info.html'
+            self.path = './templates/customer/car_info.html'
             file = read_html_template(self.path)
 
             file = insert_car_info(file, carId)
@@ -141,7 +141,6 @@ class MyServer(BaseHTTPRequestHandler):
             self.wfile.write(bytes(file, 'utf-8'))
 
         if self.path[-4:] == '.png' or self.path[-4] == '.jpg':
-
             self.path = "templates/" + self.path.partition("/")[-1]
             data = read_bytes_from_file(self.path)
             
@@ -151,7 +150,7 @@ class MyServer(BaseHTTPRequestHandler):
             self.wfile.write(data)
 
         if self.path == '/miasta':
-            self.path = './templates/cities.html'
+            self.path = './templates/customer/cities.html'
             file = read_html_template(self.path)
             file = insert_login_button(self, file, SESSIONS)
             #file = insert_cities_buttons(file)
@@ -161,9 +160,10 @@ class MyServer(BaseHTTPRequestHandler):
             self.wfile.write(bytes(file, 'utf-8'))
 
         if self.path == '/oNas':
-            self.path = './templates/aboutus.html'
+            self.path = './templates/customer/aboutus.html'
             file = read_html_template(self.path)
             file = insert_login_button(self, file, SESSIONS)
+            #file = insert_contact_information(file)
             self.send_response(200, "OK")
             self.send_header('Content-type', 'text/html; charset=utf-8')
             self.end_headers()
@@ -254,10 +254,11 @@ class MyServer(BaseHTTPRequestHandler):
                 gearbox_type = fields.get("gearbox_type")[0]
                 price = fields.get("price")[0]
                 city = fields.get("city")[0]
-                model = fields.get("model")[0]
+                nr_of_cars = fields.get("nr_of_cars")[0]
+                image = fields.get("img")[0]
 
             
-            insert_car_record(brand, model, car_type, production_year, fuel_type, gearbox_type, price, city)
+            insert_car_record(brand, model, car_type, production_year, fuel_type, gearbox_type, price, city, nr_of_cars, image)
 
             html = f"<html><head></head><body><h1>Dodano</h1></body></html>"
                 
@@ -274,7 +275,7 @@ class MyServer(BaseHTTPRequestHandler):
             )
             csearch = form.getvalue("csearch")
 
-            self.path = './templates/start_page.html'
+            self.path = './templates/customer/start_page.html'
             file = read_html_template(self.path)
             file = insert_serached_cars(file, csearch)
             file = insert_login_button(self, file, SESSIONS)

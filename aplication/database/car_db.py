@@ -18,29 +18,31 @@ def create_car_table():
                     fuel_type VARCHAR(100) NOT NULL,
                     gearbox_type VARCHAR(100) NOT NULL,
                     price REAL NOT NULL,
-                    city VARCHAR(100) NOT NULL
+                    city VARCHAR(100) NOT NULL,
+                    nr_of_cars INTEGER NOT NULL,
+                    image BLOB NOT NULL
                 );
                 '''
     cursor.executescript(table_script)
     connection.commit()
 
-def insert_car_record(brand, model, car_type, production_year, fuel_type, gearbox_type, price, city):
-    cursor.execute("INSERT INTO Car(brand, model, car_type, production_year, fuel_type, gearbox_type, price, city) VALUES(?, ?, ?, ?, ?, ?, ?, ?)",
-                   (brand, model, car_type, production_year, fuel_type, gearbox_type, price, city))
+def insert_car_record(brand, model, car_type, production_year, fuel_type, gearbox_type, price, city, nr_of_cars, image):
+    cursor.execute("INSERT INTO Car(brand, model, car_type, production_year, fuel_type, gearbox_type, price, city, nr_of_cars, image) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                   (brand, model, car_type, production_year, fuel_type, gearbox_type, price, city, nr_of_cars, image))
     connection.commit()
 
 def fetch_car_records():
-    data = cursor.execute("SELECT id, brand, model, car_type, production_year, fuel_type, gearbox_type, price, city FROM Car")
+    data = cursor.execute("SELECT id, brand, model, car_type, production_year, fuel_type, gearbox_type, price, city, nr_of_cars, image FROM Car")
     records = cursor.fetchall()
     return records
 
 def fetch_car_by_id(id):
-    data = cursor.execute("SELECT id, brand, model, car_type, production_year, fuel_type, gearbox_type, price, city FROM Car WHERE id = ?", [id])
+    data = cursor.execute("SELECT id, brand, model, car_type, production_year, fuel_type, gearbox_type, price, city, nr_of_cars, image FROM Car WHERE id = ?", [id])
     records = cursor.fetchall()
     return records
 
 def fetch_car_records_by_brand(brand):
-    data = cursor.execute("SELECT id, brand, model, car_type, production_year, fuel_type, gearbox_type, price, city FROM Car WHERE brand = ?", [brand])
+    data = cursor.execute("SELECT id, brand, model, car_type, production_year, fuel_type, gearbox_type, price, city, image FROM Car WHERE brand = ?", [brand])
     records = cursor.fetchall()
     return records
 

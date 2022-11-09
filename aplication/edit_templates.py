@@ -1,6 +1,6 @@
 from database.car_db import *
 
-def insert_car_table(file):
+def insert_car_table_for_admin(file):
     data = fetch_car_records()
     html_string =""
     for row in data:
@@ -22,6 +22,28 @@ def insert_serached_cars(file, brand):
             html_string += "<td>" + str(col) + "</td>"
         html_string += "<td> <a href=\"car_info?car_id=" + str(row[0])  + "\"><button class=\"buttontransparent\">Wyświetl</button></a></td>"
         html_string +="</tr>"
+    
+    result = file.replace("$tabela", html_string)
+    return result
+
+def insert_car_table(file):
+    data = fetch_car_records()
+    html_string = ""
+    
+    for row in data:
+        carname = row[1] + " _ " + row[2]
+        productionyear = str(row[4])
+        price = str(row[7])
+        image = row[10]
+
+        html_string += "<div class=\"center\" id=\"wrapper\">"
+        html_string += "<div id=\"first\" style=\"margin-left: 10%;\">" + "<img src=\"carimage.png\" width=\"600px\"/>" + "</div>"
+
+        html_string += "<div id=\"seccond\">" + "<br><br><br>" + "<h1>" + carname + "</h1>" + "<p>" + productionyear + "</p>" + "<p>" + price + " /doba</p>" + "</div>"
+        html_string += "<br><br><br>"
+        html_string += "<a href=\"car_info?car_id=" + str(row[0])  + "\"><button class=\"buttontransparent\">Wyświetl</button></a>" + "</div>" + "<br><br>"
+
+        
     
     result = file.replace("$tabela", html_string)
     return result
