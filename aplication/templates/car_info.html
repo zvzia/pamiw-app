@@ -14,6 +14,11 @@
                /* border: 0;
                 border-collapse: collapse;*/
             }
+
+            .menu{
+                text-align: right;
+                background-color: #f1f1f1;
+            }
             
             td, th {
                 border: 0px;
@@ -23,7 +28,6 @@
             
             .center {
                 margin: auto;
-                border: 3px solid #bebebe;
                 padding: 10px;
                 padding-bottom: 5%;
                 text-align: center;
@@ -36,7 +40,7 @@
                 float:left;
             }
             #second {
-                float: left;
+                float: right;
             }
 
             .pad{
@@ -57,9 +61,9 @@
                 margin: 4px 2px;
                 transition-duration: 0.4s;
                 cursor: pointer;
-                background-color: white; 
+                background-color: #f1f1f1; 
                 color: black; 
-                border: 2px solid rgb(80, 80, 80);
+                border: 0px solid rgb(80, 80, 80);
                 }
                 
             .button:hover {
@@ -69,18 +73,37 @@
 
             .table_right {
                 margin-left: auto; 
-                margin-right: 10%;
+                margin-right: 20%;
+                margin-top: 5%;
             }
+
+            
         </style>
     </head>
 
 
-    <body class="pad">
+    <body background="background2.png">
+        <div class="menu" id="wrapper">
+            <div id="first">
+                <a href="/oferta" method="post">
+                    <button class="button">Oferta</button></a>
+                <a href="/miasta" method="post">
+                    <button class="button">Miasta</button></a>
+                <a href="/oNas" method="post">
+                    <button class="button">O nas</button></a>
+            </div>
+
+            <div id="second">
+                $logowanie
+            </div>
+            
+        </div>
+        <br><br>
 
         <div class="center" id="wrapper">
             <h1>$carname</h1>
 
-            <div id="first">
+            <div id="first" style="margin-left: 10%;">
                 <img src="carimage.png" width="200%"/>
             </div>
             <div id="seccond">
@@ -124,13 +147,11 @@
                 
             </div>
 
-            <br><br><br><br>
-            <a href="/">
-                <button class="button">Powrót</button>
-            </a>
+            <br><br><br><br><br><br><br><br>
+            <a href="/oferta">
+                <button class="button">Powrót</button></a>
             <a href="/reserve_car" method="post" >
-                    <button class="button">Zarezerwuj</button>
-                </a>
+                    <button class="button">Zarezerwuj</button></a>
             
             
         </div>

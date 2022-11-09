@@ -48,6 +48,17 @@ class MyServer(BaseHTTPRequestHandler):
         if self.path == '/':
             self.path = './templates/start_page.html'
             file = read_html_template(self.path)
+
+            file = insert_login_button(self, file, SESSIONS)
+                
+            self.send_response(200, "OK")
+            self.send_header('Content-type', 'text/html; charset=utf-8')
+            self.end_headers()
+            self.wfile.write(bytes(file, 'utf-8'))  
+
+        if self.path == '/oferta':
+            self.path = './templates/offer.html'
+            file = read_html_template(self.path)
             
             file = insert_car_table(file)
             file = insert_login_button(self, file, SESSIONS)
@@ -56,7 +67,7 @@ class MyServer(BaseHTTPRequestHandler):
             self.send_response(200, "OK")
             self.send_header('Content-type', 'text/html; charset=utf-8')
             self.end_headers()
-            self.wfile.write(bytes(file, 'utf-8'))    
+            self.wfile.write(bytes(file, 'utf-8'))  
 
         if self.path == '/login_page':
             self.path = './templates/login_page.html'
@@ -122,7 +133,7 @@ class MyServer(BaseHTTPRequestHandler):
             file = read_html_template(self.path)
 
             file = insert_car_info(file, carId)
-            
+            file = insert_login_button(self, file, SESSIONS)
                 
             self.send_response(200, "OK")
             self.send_header('Content-type', 'text/html; charset=utf-8')
@@ -138,6 +149,26 @@ class MyServer(BaseHTTPRequestHandler):
             self.send_header('Content-type', 'image/*')
             self.end_headers()
             self.wfile.write(data)
+
+        if self.path == '/miasta':
+            self.path = './templates/cities.html'
+            file = read_html_template(self.path)
+            file = insert_login_button(self, file, SESSIONS)
+            #file = insert_cities_buttons(file)
+            self.send_response(200, "OK")
+            self.send_header('Content-type', 'text/html; charset=utf-8')
+            self.end_headers()
+            self.wfile.write(bytes(file, 'utf-8'))
+
+        if self.path == '/oNas':
+            self.path = './templates/aboutus.html'
+            file = read_html_template(self.path)
+            file = insert_login_button(self, file, SESSIONS)
+            self.send_response(200, "OK")
+            self.send_header('Content-type', 'text/html; charset=utf-8')
+            self.end_headers()
+            self.wfile.write(bytes(file, 'utf-8'))
+
 
     
 
