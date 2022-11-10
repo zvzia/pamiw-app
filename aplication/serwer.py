@@ -63,6 +63,7 @@ class MyServer(BaseHTTPRequestHandler):
             file = insert_car_table(file)
             file = insert_login_button(self, file, SESSIONS)
             file = insert_autocomplete_data(file)
+            file = insert_filter_options(file)
                 
             self.send_response(200, "OK")
             self.send_header('Content-type', 'text/html; charset=utf-8')
@@ -153,7 +154,7 @@ class MyServer(BaseHTTPRequestHandler):
             self.path = './templates/customer/cities.html'
             file = read_html_template(self.path)
             file = insert_login_button(self, file, SESSIONS)
-            #file = insert_cities_buttons(file)
+            file = insert_cities_buttons(file)
             self.send_response(200, "OK")
             self.send_header('Content-type', 'text/html; charset=utf-8')
             self.end_headers()
@@ -168,6 +169,31 @@ class MyServer(BaseHTTPRequestHandler):
             self.send_header('Content-type', 'text/html; charset=utf-8')
             self.end_headers()
             self.wfile.write(bytes(file, 'utf-8'))
+
+        if self.path[:25] == '/getImageFromCarDb?carId=':
+            carId = self.path[25:]
+            data = getImageFromDBByCarId(carId)
+            
+            self.send_response(200, "OK")
+            self.send_header('Content-type', 'image/*')
+            self.end_headers()
+            self.wfile.write(data)
+
+        if self.path[0:13] == '/oferta?city=':
+            city = self.path[13:]
+            brand = "any"
+            car_type = "any"
+            fuel_type = "any"
+            gearbox_type = "any"
+
+            self.path = './templates/customer/offer.html'
+            file = read_html_template(self.path)
+            file = insert_filtered_cars(file, brand, car_type, fuel_type, gearbox_type, city)
+            file = insert_login_button(self, file, SESSIONS)
+        
+            self.send_response(200, "OK")
+            self.end_headers()
+            self.wfile.write(bytes(file, "utf-8"))
 
 
     
@@ -275,9 +301,33 @@ class MyServer(BaseHTTPRequestHandler):
             )
             csearch = form.getvalue("csearch")
 
-            self.path = './templates/customer/start_page.html'
+            self.path = './templates/customer/offer.html'
             file = read_html_template(self.path)
             file = insert_serached_cars(file, csearch)
+            file = insert_login_button(self, file, SESSIONS)
+            file = insert_filter_options(file)
+        
+            self.send_response(200, "OK")
+            self.end_headers()
+            self.wfile.write(bytes(file, "utf-8"))
+
+        if self.path == '/filter_cars':
+            
+            form = cgi.FieldStorage(
+                fp=self.rfile,
+                headers=self.headers,
+                environ={'REQUEST_METHOD': 'POST'}
+            )
+            
+            brand = form.getvalue("brand")
+            car_type = form.getvalue("car_type")
+            fuel_type = form.getvalue("fuel_type")
+            gearbox_type = form.getvalue("gearbox_type")
+            city = form.getvalue("city")
+
+            self.path = './templates/customer/offer.html'
+            file = read_html_template(self.path)
+            file = insert_filtered_cars(file, brand, car_type, fuel_type, gearbox_type, city)
             file = insert_login_button(self, file, SESSIONS)
         
             self.send_response(200, "OK")
@@ -310,6 +360,7 @@ class MyServer(BaseHTTPRequestHandler):
                 self.send_response(200, "OK")
                 self.end_headers()
                 self.wfile.write(bytes(html, "utf-8"))
+
 
 
     def generate_sid(self):

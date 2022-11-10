@@ -46,6 +46,24 @@ def fetch_car_records_by_brand(brand):
     records = cursor.fetchall()
     return records
 
+def fetch_car_records_by_filter_conditions(brand, car_type, fuel_type, gearbox_type, city):
+    query = "SELECT id, brand, model, car_type, production_year, fuel_type, gearbox_type, price, city, image FROM Car WHERE "
+    if brand != "any":
+        query += "brand = " + "'" + brand + "'" + " AND "
+    if car_type != "any":
+        query += "car_type = " + "'" + car_type + "'" + " AND "
+    if fuel_type != "any":
+        query += "fuel_type = " + "'" + fuel_type + "'" + " AND "
+    if gearbox_type != "any":
+        query += "gearbox_type = " + "'" + gearbox_type + "'" + " AND "
+    if city != "any":
+        query += "city = " + "'" + city + "'" + " AND "
+
+    query = query[:-4]
+    data = cursor.execute(query)
+    records = cursor.fetchall()
+    return records
+
 def fetch_all_brands():
     data = cursor.execute("SELECT DISTINCT brand FROM car ORDER BY brand")
     records = cursor.fetchall()
@@ -55,5 +73,32 @@ def fetch_all_models():
     data = cursor.execute("SELECT DISTINCT model FROM car ORDER BY model")
     records = cursor.fetchall()
     return records
+
+def fetch_all_car_types():
+    data = cursor.execute("SELECT DISTINCT car_type FROM car ORDER BY car_type")
+    records = cursor.fetchall()
+    return records
+
+def fetch_all_fuel_types():
+    data = cursor.execute("SELECT DISTINCT fuel_type FROM car ORDER BY fuel_type")
+    records = cursor.fetchall()
+    return records
+
+def fetch_all_gearbox_types():
+    data = cursor.execute("SELECT DISTINCT gearbox_type FROM car ORDER BY gearbox_type")
+    records = cursor.fetchall()
+    return records
+
+def fetch_all_cities():
+    data = cursor.execute("SELECT DISTINCT city FROM car ORDER BY city")
+    records = cursor.fetchall()
+    return records
+
+
+def getImageFromDBByCarId(id):
+    data = cursor.execute("SELECT image FROM Car WHERE id = ?", [id])
+    records = cursor.fetchall()
+    image = records[0][0]
+    return image
 
 

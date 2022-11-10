@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         
-        <title>Strona główna</title>
+        <title>Oferta</title>
         
         <style>
             body{
@@ -20,8 +20,8 @@
             }
 
             .pad{
-                padding-left: 5%;
-                padding-right: 5%;
+                padding-left: 10%;
+                padding-right: 10%;
             }
 
             .menu{
@@ -113,6 +113,20 @@
                 width: 100%;
             }
 
+            select{
+                border: 1px solid transparent;
+                background-color: #f1f1f1;
+                padding: 10px;
+                font-size: 16px;
+            }
+
+            option{
+                border: 1px solid transparent;
+                background-color: #f1f1f1;
+                padding: 10px;
+                font-size: 16px;
+            }
+
             input[type=submit] {
                 background-color: rgb(124, 124, 124);
                 color: #fff;
@@ -181,6 +195,13 @@
                 float: right;
             }
 
+            img {
+                border: 5px solid #f1f1f1;
+            }
+
+            .centered-and-cropped { object-fit: cover }
+            
+
         </style>
     </head>
 
@@ -214,6 +235,37 @@
                     </div>
                     <input type="submit" value="Szukaj">
                 </form>
+                <br>
+                <p>Filtruj:</p>
+                <form autocomplete="off" action="/filter_cars" method="post">
+                    <label for="brand">Marka:</label>
+                    <select id="brand" name="brand">
+                        <option value="any">Dowolna</option>
+                        $brandoptions
+                    </select>
+                    <label style = "padding-left: 20px;" for="car_type">Typ samochodu:</label>
+                    <select id="car_type" name="car_type">
+                        <option value="any">Dowolny</option>
+                        $cartypeoptions
+                    </select>
+                    <label style = "padding-left: 20px;" for="fuel_type">Typ paliwa:</label>
+                    <select id="fuel_type" name="fuel_type">
+                        <option value="any">Dowolna</option>
+                        $fueltypeoptions
+                    </select>
+                    <label style = "padding-left: 20px;"  for="gearbox_type">Skrzynia biegów:</label>
+                    <select id="gearbox_type" name="gearbox_type">
+                        <option value="any">Dowolna</option>
+                        $gearboxtypeoptions
+                    </select>
+                    <label style = "padding-left: 20px;" for="city">Miasto:</label>
+                    <select id="city" name="city">
+                        <option value="any">Dowolne</option>
+                        $cityoptions
+                    </select>
+                    <input type="submit" value="Filtruj">
+                </form>
+
                 <br>
             </div>
                 $tabela
@@ -326,6 +378,8 @@
             
             /*initiate the autocomplete function on the "myInput" element, and pass along the countries array as possible autocomplete values:*/
             autocomplete(document.getElementById("csearch"), cars);
+
+            
         </script>
     </body>
 </html>

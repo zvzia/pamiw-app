@@ -1,4 +1,5 @@
 from database.car_db import *
+import base64
 
 def insert_car_table_for_admin(file):
     data = fetch_car_records()
@@ -15,29 +16,16 @@ def insert_car_table_for_admin(file):
 
 def insert_serached_cars(file, brand):
     data = fetch_car_records_by_brand(brand)
-    html_string =""
-    for row in data:
-        html_string +="<tr>"
-        for col in row[1:]:
-            html_string += "<td>" + str(col) + "</td>"
-        html_string += "<td> <a href=\"car_info?car_id=" + str(row[0])  + "\"><button class=\"buttontransparent\">Wyświetl</button></a></td>"
-        html_string +="</tr>"
-    
-    result = file.replace("$tabela", html_string)
-    return result
-
-def insert_car_table(file):
-    data = fetch_car_records()
     html_string = ""
     
     for row in data:
-        carname = row[1] + " _ " + row[2]
+        carId = row[0]
+        carname = row[1] + " - " + row[2]
         productionyear = str(row[4])
         price = str(row[7])
-        image = row[10]
 
         html_string += "<div class=\"center\" id=\"wrapper\">"
-        html_string += "<div id=\"first\" style=\"margin-left: 10%;\">" + "<img src=\"carimage.png\" width=\"600px\"/>" + "</div>"
+        html_string += "<div id=\"first\" style=\"margin-left: 10%;\">" + "<img class=\"centered-and-cropped\" width=\"600px\" height=\"400px\" src=\"getImageFromCarDb?carId="+ str(carId) + "\" />" + "</div>"
 
         html_string += "<div id=\"seccond\">" + "<br><br><br>" + "<h1>" + carname + "</h1>" + "<p>" + productionyear + "</p>" + "<p>" + price + " /doba</p>" + "</div>"
         html_string += "<br><br><br>"
@@ -47,6 +35,51 @@ def insert_car_table(file):
     
     result = file.replace("$tabela", html_string)
     return result
+
+def insert_car_table(file):
+    data = fetch_car_records()
+    html_string = ""
+    
+    for row in data:
+        carId = row[0]
+        carname = row[1] + " - " + row[2]
+        productionyear = str(row[4])
+        price = str(row[7])
+
+        html_string += "<div class=\"center\" id=\"wrapper\">"
+        html_string += "<div id=\"first\" style=\"margin-left: 10%;\">" + "<img class=\"centered-and-cropped\" width=\"600px\" height=\"400px\" src=\"getImageFromCarDb?carId="+ str(carId) + "\" />" + "</div>"
+
+        html_string += "<div id=\"seccond\">" + "<br><br><br>" + "<h1>" + carname + "</h1>" + "<p>" + productionyear + "</p>" + "<p>" + price + " /doba</p>" + "</div>"
+        html_string += "<br><br><br>"
+        html_string += "<a href=\"car_info?car_id=" + str(row[0])  + "\"><button class=\"buttontransparent\">Wyświetl</button></a>" + "</div>" + "<br><br>"
+
+        
+    
+    result = file.replace("$tabela", html_string)
+    return result
+
+def insert_filtered_cars(file, brand, car_type, fuel_type, gearbox_type, city):
+    data = fetch_car_records_by_filter_conditions(brand, car_type, fuel_type, gearbox_type, city)
+    html_string = ""
+    
+    for row in data:
+        carId = row[0]
+        carname = row[1] + " - " + row[2]
+        productionyear = str(row[4])
+        price = str(row[7])
+
+        html_string += "<div class=\"center\" id=\"wrapper\">"
+        html_string += "<div id=\"first\" style=\"margin-left: 10%;\">" + "<img class=\"centered-and-cropped\" width=\"600px\" height=\"400px\" src=\"getImageFromCarDb?carId="+ str(carId) + "\" />" + "</div>"
+
+        html_string += "<div id=\"seccond\">" + "<br><br><br>" + "<h1>" + carname + "</h1>" + "<p>" + productionyear + "</p>" + "<p>" + price + " /doba</p>" + "</div>"
+        html_string += "<br><br><br>"
+        html_string += "<a href=\"car_info?car_id=" + str(row[0])  + "\"><button class=\"buttontransparent\">Wyświetl</button></a>" + "</div>" + "<br><br>"
+
+        
+    
+    result = file.replace("$tabela", html_string)
+    return result
+
 
 def insert_login_button(self, file, sessions):
     cookies = self.parse_cookies(self.headers["Cookie"])
@@ -101,3 +134,50 @@ def insert_car_info(file, carId):
     file = file.replace("$city", car[8])
 
     return file
+
+def insert_filter_options(file):
+    brands = fetch_all_brands()
+    car_types = fetch_all_car_types()
+    fuel_options = fetch_all_fuel_types()
+    gearbox_options = fetch_all_gearbox_types()
+    cities = fetch_all_cities()
+
+    brand_options_html = ""
+    car_type_otions_html = ""
+    fuel_options_html = ""
+    gearbox_options_html = ""
+    city_options_html = ""
+
+    for brand in brands:
+        brand_options_html += "<option value=\"" + brand[0] + "\">" + brand[0] +"</option>"
+    for type in car_types:
+        car_type_otions_html += "<option value=\"" + type[0] + "\">" + type[0] +"</option>"
+    for fuel in fuel_options:
+        fuel_options_html += "<option value=\"" + fuel[0] + "\">" + fuel[0] +"</option>"
+    for gearbox in gearbox_options:
+        gearbox_options_html += "<option value=\"" + gearbox[0] + "\">" + gearbox[0] +"</option>"
+    for city in cities:
+        city_options_html += "<option value=\"" + city[0] + "\">" + city[0] +"</option>"
+    
+    
+    
+    file = file.replace("$brandoptions", brand_options_html)
+    file = file.replace("$cartypeoptions", car_type_otions_html)
+    file = file.replace("$fueltypeoptions", fuel_options_html)
+    file = file.replace("$gearboxtypeoptions", gearbox_options_html)
+    file = file.replace("$cityoptions", city_options_html)
+
+    return file
+
+def insert_cities_buttons(file):
+    cities = fetch_all_cities()
+
+    cities_html = ""
+    for city in cities:
+        cities_html += "<a href=\"/oferta?city=" + city[0] + "\" method=\"post\"><button class=\"button-big\">" + city[0] + "</button></a><br><br>"
+
+    file = file.replace("$citiesbuttons", cities_html)
+
+    return file
+    
+                    
