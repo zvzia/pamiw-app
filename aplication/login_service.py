@@ -18,4 +18,3 @@ def check_login_info(username, password):
         return check_password(password, passwordInDb)
     
     return False
-
