@@ -1,7 +1,7 @@
 from sqlite3 import connect
 from sqlite3.dbapi2 import Cursor
 
-DB_NAME = "database/car.db"  
+DB_NAME = "database/car_rental.db"  
 
 # create database inside database folder if not exists
 connection = connect(DB_NAME)
@@ -29,6 +29,35 @@ def create_car_table():
 def insert_car_record(brand, model, car_type, production_year, fuel_type, gearbox_type, price, city, nr_of_cars, image):
     cursor.execute("INSERT INTO Car(brand, model, car_type, production_year, fuel_type, gearbox_type, price, city, nr_of_cars, image) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                    (brand, model, car_type, production_year, fuel_type, gearbox_type, price, city, nr_of_cars, image))
+    connection.commit()
+
+def edit_car_record(car_id, brand, model, car_type, production_year, fuel_type, gearbox_type, price, city, nr_of_cars, image):
+    query = "UPDATE Car SET "
+    if(brand != ""):
+        query += "brand = '" + brand + "', "
+    if(model != ""):
+        query += "model = '" + model + "', "
+    if(car_type != ""):
+        query += "car_type = '" + car_type + "', "
+    if(production_year != ""):
+        query += "production_year = '" + production_year + "', "
+    if(fuel_type != ""):
+        query += "fuel_type = '" + fuel_type + "', "
+    if(gearbox_type != ""):
+        query += "gearbox_type = '" + gearbox_type + "', "
+    if(price != ""):
+        query += "price = '" + price + "', "
+    if(city != ""):
+        query += "city = '" + city + "', "
+    if(nr_of_cars != ""):
+        query += "nr_of_cars = '" + nr_of_cars + "', "
+    if(image != b''):
+        query += "image = '" + image + "', "
+
+    query = query[:-2]
+    query += " WHERE id = " + car_id
+
+    cursor.execute(query)
     connection.commit()
 
 def fetch_car_records():

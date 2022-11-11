@@ -18,10 +18,72 @@
             }
 
             .pad{
-                padding-top: 10%;
-                padding-left: 30%;
-                padding-right: 30%;
+                padding-top: 5%;
+                padding-left: 20%;
+                padding-right: 20%;
             }
+
+            table {
+                border-collapse: collapse;
+                width: 100%;
+            }
+
+            td, th {
+                border: 1px solid #dddddd;
+                text-align: left;
+                padding: 8px;
+            }
+
+            tr:nth-child(even) {
+                background-color: #f1f1f1;
+            }
+
+            .button {
+                border: none;
+                color: white;
+                padding: 15px 32px;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                font-size: 16px;
+                margin: 4px 2px;
+                transition-duration: 0.4s;
+                cursor: pointer;
+                background-color: #f1f1f1; 
+                color: black; 
+                border: 0px solid rgb(80, 80, 80);
+                }
+                
+            .button:hover {
+                background-color: rgb(80, 80, 80);
+                color: white;
+            }
+
+            input {
+                border: 1px solid transparent;
+                background-color: #f1f1f1;
+                padding: 10px;
+                font-size: 16px;
+            }
+
+            input[type=text] {
+                background-color: #f1f1f1;
+                width: 100%;
+            }
+
+            input[type=submit] {
+                background-color: rgb(124, 124, 124);
+                color: #fff;
+                transition-duration: 0.4s;
+                cursor: pointer;
+                border: 2px solid rgb(80, 80, 80);
+            }
+
+            input[type=submit]:hover {
+                background-color: rgb(80, 80, 80);
+                border: 2px solid rgb(0, 0, 0);
+            }
+
 
         
         </style>
@@ -31,30 +93,21 @@
     <body class="pad">
 
         <div>
-            <h1>dodaj:</h1>
-            <form method="POST", action='/addCar' enctype="multipart/form-data">
-                <label for="brand">marka</label><br>
-                <input type="text" id="brand" name="brand"><br><br>
-                <label for="model">model</label><br>
-                <input type="text" id="model" name="model"><br><br>
-                <label for="car_type">Typ</label><br>
-                <input type="text" id="car_type" name="car_type"><br><br>
-                <label for="production_year">Rok produkcji</label><br>
-                <input type="text" id="production_year" name="production_year"><br><br>
-                <label for="fuel_type">Typ paliwa</label><br>
-                <input type="text" id="fuel_type" name="fuel_type"><br><br>
-                <label for="gearbox_type">Skrzynia biegów</label><br>
-                <input type="text" id="gearbox_type" name="gearbox_type"><br><br>
-                <label for="price">Cena</label><br>
-                <input type="text" id="price" name="price"><br><br>
-                <label for="city">Miasto</label><br>
-                <input type="text" id="city" name="city"><br><br>
-                <label for="city">Ilość aut</label><br>
-                <input type="text" id="nr_of_cars" name="nr_of_cars"><br><br>
-                <label for="img">Zdjęcie:</label>
-                <input type="file" id="img" name="img" accept="image/*"><br><br>
-                <input type="submit" value="Submit">
-              </form> 
+            <table>
+                <tr>
+                  <th>Marka</th>
+                  <th>Model</th>
+                  <th>Typ</th>
+                  <th>Rok produkcji</th>
+                  <th>Typ paliwa</th>
+                  <th>Skrzynia biegów</th>
+                  <th>Cena za dobe</th>
+                  <th>Miasto</th>
+                  <th>Liczba samochodów</th>
+                  <th></th>
+                </tr>
+                $cartable
+              </table>
 
         </div>
 

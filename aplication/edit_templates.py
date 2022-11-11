@@ -1,18 +1,48 @@
 from database.car_db import *
-import base64
 
 def insert_car_table_for_admin(file):
     data = fetch_car_records()
     html_string =""
     for row in data:
         html_string +="<tr>"
-        for col in row[1:]:
+        for col in row[1:-1]:
             html_string += "<td>" + str(col) + "</td>"
-        html_string += "<td> <a href=\"car_info?car_id=" + str(row[0])  + "\"><button class=\"button\">Wyświetl</button></a></td>"
+        html_string += "<td> <a href=\"edit_car?car_id=" + str(row[0]) + "\"><button class=\"button\">Edytuj</button></a></td>"
         html_string +="</tr>"
     
-    result = file.replace("$tabela", html_string)
+    result = file.replace("$cartable", html_string)
     return result
+
+def insert_edit_car_info(file, car_id):
+    car = fetch_car_by_id(car_id)
+
+    file = file.replace("$carid", str(car[0][0]))
+    file = file.replace("$brand", car[0][1])
+    file = file.replace("$model", car[0][2])
+    file = file.replace("$cartype", car[0][3])
+    file = file.replace("$productionyear", str(car[0][4]))
+    file = file.replace("$fueltype", car[0][5])
+    file = file.replace("$gearboxtype", car[0][6])
+    file = file.replace("$price", str(car[0][7]))
+    file = file.replace("$city", car[0][8])
+    file = file.replace("$nrofcars", str(car[0][9]))
+
+    return file
+
+def insert_empty_info(file):
+    file = file.replace("$carid", "")
+    file = file.replace("$brand", "")
+    file = file.replace("$model", "")
+    file = file.replace("$cartype", "")
+    file = file.replace("$productionyear", "")
+    file = file.replace("$fueltype", "")
+    file = file.replace("$gearboxtype", "")
+    file = file.replace("$price", "")
+    file = file.replace("$city", "")
+    file = file.replace("$nrofcars", "")
+
+    return file
+
 
 def insert_serached_cars(file, brand):
     data = fetch_car_records_by_brand(brand)

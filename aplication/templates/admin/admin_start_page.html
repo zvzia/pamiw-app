@@ -22,20 +22,41 @@
                 padding-left: 30%;
                 padding-right: 30%;
             }
+
+            .button-big {
+                border: none;
+                color: white;
+                padding: 20px 40px;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                font-size: 27px;
+                margin: 4px 2px;
+                transition-duration: 0.4s;
+                cursor: pointer;
+                background-color: #f1f1f1; 
+                color: black; 
+                }
+                
+            .button-big:hover {
+                background-color: rgb(80, 80, 80);
+                color: white;
+            }
+
         </style>
     </head>
 
 
     <body class="pad">
 
-        <div>
+        <div class="center">
             <h1></h1>
-            <a href="admin_start_page/reservations">
-                <button class="btn btn-primary btn-lg">Wyświetl rezerwacje</button>
+            <a href="admin/reservations">
+                <button class="button-big">Wyświetl rezerwacje</button>
             </a>
             <br><br>
-            <a href="admin_start_page/cars">
-                <button class="btn btn-primary btn-lg">Zarządzaj samochodami</button>
+            <a href="admin/cars">
+                <button class="button-big">Zarządzaj samochodami</button>
             </a>
         </div>
 

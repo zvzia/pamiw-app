@@ -94,22 +94,6 @@ class MyServer(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(bytes(file, 'utf-8'))
 
-        if self.path == '/admin_start_page':
-            self.path = './templates/admin/admin_start_page.html'
-            file = read_html_template(self.path)
-            self.send_response(200, "OK")
-            self.send_header('Content-type', 'text/html; charset=utf-8')
-            self.end_headers()
-            self.wfile.write(bytes(file, 'utf-8'))
-
-        if self.path == '/admin_start_page/cars':
-            self.path = './templates/admin/admin_car_list.html'
-            file = read_html_template(self.path)
-            self.send_response(200, "OK")
-            self.send_header('Content-type', 'text/html; charset=utf-8')
-            self.end_headers()
-            self.wfile.write(bytes(file, 'utf-8'))
-
         if self.path == '/profile_page':
             self.path = './templates/customer/profile_page.html'
             file = read_html_template(self.path)
@@ -195,6 +179,44 @@ class MyServer(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(bytes(file, "utf-8"))
 
+        
+
+        if self.path == '/admin':
+            self.path = './templates/admin/admin_start_page.html'
+            file = read_html_template(self.path)
+            self.send_response(200, "OK")
+            self.send_header('Content-type', 'text/html; charset=utf-8')
+            self.end_headers()
+            self.wfile.write(bytes(file, 'utf-8'))
+
+        if self.path == '/admin/cars':
+            self.path = './templates/admin/admin_car_list.html'
+            file = read_html_template(self.path)
+            file = insert_car_table_for_admin(file)
+            self.send_response(200, "OK")
+            self.send_header('Content-type', 'text/html; charset=utf-8')
+            self.end_headers()
+            self.wfile.write(bytes(file, 'utf-8'))
+
+        if self.path[:23] == '/admin/edit_car?car_id=':
+            car_id = int(self.path[23:])
+            self.path = './templates/admin/add_car.html'
+            file = read_html_template(self.path)
+            file = insert_edit_car_info(file, car_id)
+            self.send_response(200, "OK")
+            self.send_header('Content-type', 'text/html; charset=utf-8')
+            self.end_headers()
+            self.wfile.write(bytes(file, 'utf-8'))
+
+        if self.path[:23] == '/admin/add_car':
+            self.path = './templates/admin/add_car.html'
+            file = read_html_template(self.path)
+            file = insert_empty_info(file)
+            self.send_response(200, "OK")
+            self.send_header('Content-type', 'text/html; charset=utf-8')
+            self.end_headers()
+            self.wfile.write(bytes(file, 'utf-8'))
+
 
     
 
@@ -272,6 +294,7 @@ class MyServer(BaseHTTPRequestHandler):
 
             if ctype == 'multipart/form-data':
                 fields = cgi.parse_multipart(self.rfile, pdict)
+                car_id = fields.get("car_id")[0]
                 brand = fields.get("brand")[0]
                 model = fields.get("model")[0]
                 car_type = fields.get("car_type")[0]
@@ -283,10 +306,12 @@ class MyServer(BaseHTTPRequestHandler):
                 nr_of_cars = fields.get("nr_of_cars")[0]
                 image = fields.get("img")[0]
 
-            
-            insert_car_record(brand, model, car_type, production_year, fuel_type, gearbox_type, price, city, nr_of_cars, image)
-
-            html = f"<html><head></head><body><h1>Dodano</h1></body></html>"
+            if car_id == "":
+                insert_car_record(brand, model, car_type, production_year, fuel_type, gearbox_type, price, city, nr_of_cars, image)
+                html = f"<html><head></head><body><h1>Dodano</h1></body></html>"
+            else:
+                edit_car_record(car_id, brand, model, car_type, production_year, fuel_type, gearbox_type, price, city, nr_of_cars, image)
+                html = f"<html><head></head><body><h1>Zmieniono</h1></body></html>"
                 
             self.send_response(200, "OK")
             self.end_headers()
