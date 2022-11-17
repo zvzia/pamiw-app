@@ -46,7 +46,7 @@ class MyServer(BaseHTTPRequestHandler):
                 self.user = cookies["sid"]
 
         if self.path == '/':
-            self.path = './templates/start_page.html'
+            self.path = './templates/customer/start_page.html'
             file = read_html_template(self.path)
 
             file = insert_login_button(self, file, SESSIONS)
@@ -57,12 +57,13 @@ class MyServer(BaseHTTPRequestHandler):
             self.wfile.write(bytes(file, 'utf-8'))  
 
         if self.path == '/oferta':
-            self.path = './templates/offer.html'
+            self.path = './templates/customer/offer.html'
             file = read_html_template(self.path)
             
             file = insert_car_table(file)
             file = insert_login_button(self, file, SESSIONS)
             file = insert_autocomplete_data(file)
+            file = insert_filter_options(file)
                 
             self.send_response(200, "OK")
             self.send_header('Content-type', 'text/html; charset=utf-8')
@@ -70,7 +71,7 @@ class MyServer(BaseHTTPRequestHandler):
             self.wfile.write(bytes(file, 'utf-8'))  
 
         if self.path == '/login_page':
-            self.path = './templates/login_page.html'
+            self.path = './templates/customer/login_page.html'
             file = read_html_template(self.path)
             self.send_response(200, "OK")
             self.send_header('Content-type', 'text/html; charset=utf-8')
@@ -86,23 +87,7 @@ class MyServer(BaseHTTPRequestHandler):
             self.wfile.write(bytes(html, 'utf-8'))
 
         if self.path == '/register_page':
-            self.path = './templates/register_page.html'
-            file = read_html_template(self.path)
-            self.send_response(200, "OK")
-            self.send_header('Content-type', 'text/html; charset=utf-8')
-            self.end_headers()
-            self.wfile.write(bytes(file, 'utf-8'))
-
-        if self.path == '/admin_start_page':
-            self.path = './templates/admin_start_page.html'
-            file = read_html_template(self.path)
-            self.send_response(200, "OK")
-            self.send_header('Content-type', 'text/html; charset=utf-8')
-            self.end_headers()
-            self.wfile.write(bytes(file, 'utf-8'))
-
-        if self.path == '/admin_start_page/cars':
-            self.path = './templates/admin_car_list.html'
+            self.path = './templates/customer/register_page.html'
             file = read_html_template(self.path)
             self.send_response(200, "OK")
             self.send_header('Content-type', 'text/html; charset=utf-8')
@@ -110,7 +95,7 @@ class MyServer(BaseHTTPRequestHandler):
             self.wfile.write(bytes(file, 'utf-8'))
 
         if self.path == '/profile_page':
-            self.path = './templates/profile_page.html'
+            self.path = './templates/customer/profile_page.html'
             file = read_html_template(self.path)
             self.send_response(200, "OK")
             self.send_header('Content-type', 'text/html; charset=utf-8')
@@ -118,7 +103,7 @@ class MyServer(BaseHTTPRequestHandler):
             self.wfile.write(bytes(file, 'utf-8'))
 
         if self.path == '/data_edit':
-            self.path = './templates/data_edit.html'
+            self.path = './templates/customer/data_edit.html'
             file = read_html_template(self.path)
             username = SESSIONS[self.user][0]
             file = file.replace("$username", username)
@@ -129,7 +114,7 @@ class MyServer(BaseHTTPRequestHandler):
 
         if self.path[0:10] == '/car_info?':
             carId = int(self.path[17:])
-            self.path = './templates/car_info.html'
+            self.path = './templates/customer/car_info.html'
             file = read_html_template(self.path)
 
             file = insert_car_info(file, carId)
@@ -141,7 +126,6 @@ class MyServer(BaseHTTPRequestHandler):
             self.wfile.write(bytes(file, 'utf-8'))
 
         if self.path[-4:] == '.png' or self.path[-4] == '.jpg':
-
             self.path = "templates/" + self.path.partition("/")[-1]
             data = read_bytes_from_file(self.path)
             
@@ -151,19 +135,83 @@ class MyServer(BaseHTTPRequestHandler):
             self.wfile.write(data)
 
         if self.path == '/miasta':
-            self.path = './templates/cities.html'
+            self.path = './templates/customer/cities.html'
             file = read_html_template(self.path)
             file = insert_login_button(self, file, SESSIONS)
-            #file = insert_cities_buttons(file)
+            file = insert_cities_buttons(file)
             self.send_response(200, "OK")
             self.send_header('Content-type', 'text/html; charset=utf-8')
             self.end_headers()
             self.wfile.write(bytes(file, 'utf-8'))
 
         if self.path == '/oNas':
-            self.path = './templates/aboutus.html'
+            self.path = './templates/customer/aboutus.html'
             file = read_html_template(self.path)
             file = insert_login_button(self, file, SESSIONS)
+            #file = insert_contact_information(file)
+            self.send_response(200, "OK")
+            self.send_header('Content-type', 'text/html; charset=utf-8')
+            self.end_headers()
+            self.wfile.write(bytes(file, 'utf-8'))
+
+        if self.path[:25] == '/getImageFromCarDb?carId=':
+            carId = self.path[25:]
+            data = getImageFromDBByCarId(carId)
+            
+            self.send_response(200, "OK")
+            self.send_header('Content-type', 'image/*')
+            self.end_headers()
+            self.wfile.write(data)
+
+        if self.path[0:13] == '/oferta?city=':
+            city = self.path[13:]
+            brand = "any"
+            car_type = "any"
+            fuel_type = "any"
+            gearbox_type = "any"
+
+            self.path = './templates/customer/offer.html'
+            file = read_html_template(self.path)
+            file = insert_filtered_cars(file, brand, car_type, fuel_type, gearbox_type, city)
+            file = insert_login_button(self, file, SESSIONS)
+        
+            self.send_response(200, "OK")
+            self.end_headers()
+            self.wfile.write(bytes(file, "utf-8"))
+
+        
+
+        if self.path == '/admin':
+            self.path = './templates/admin/admin_start_page.html'
+            file = read_html_template(self.path)
+            self.send_response(200, "OK")
+            self.send_header('Content-type', 'text/html; charset=utf-8')
+            self.end_headers()
+            self.wfile.write(bytes(file, 'utf-8'))
+
+        if self.path == '/admin/cars':
+            self.path = './templates/admin/admin_car_list.html'
+            file = read_html_template(self.path)
+            file = insert_car_table_for_admin(file)
+            self.send_response(200, "OK")
+            self.send_header('Content-type', 'text/html; charset=utf-8')
+            self.end_headers()
+            self.wfile.write(bytes(file, 'utf-8'))
+
+        if self.path[:23] == '/admin/edit_car?car_id=':
+            car_id = int(self.path[23:])
+            self.path = './templates/admin/add_car.html'
+            file = read_html_template(self.path)
+            file = insert_edit_car_info(file, car_id)
+            self.send_response(200, "OK")
+            self.send_header('Content-type', 'text/html; charset=utf-8')
+            self.end_headers()
+            self.wfile.write(bytes(file, 'utf-8'))
+
+        if self.path[:23] == '/admin/add_car':
+            self.path = './templates/admin/add_car.html'
+            file = read_html_template(self.path)
+            file = insert_empty_info(file)
             self.send_response(200, "OK")
             self.send_header('Content-type', 'text/html; charset=utf-8')
             self.end_headers()
@@ -246,6 +294,7 @@ class MyServer(BaseHTTPRequestHandler):
 
             if ctype == 'multipart/form-data':
                 fields = cgi.parse_multipart(self.rfile, pdict)
+                car_id = fields.get("car_id")[0]
                 brand = fields.get("brand")[0]
                 model = fields.get("model")[0]
                 car_type = fields.get("car_type")[0]
@@ -254,12 +303,15 @@ class MyServer(BaseHTTPRequestHandler):
                 gearbox_type = fields.get("gearbox_type")[0]
                 price = fields.get("price")[0]
                 city = fields.get("city")[0]
-                model = fields.get("model")[0]
+                nr_of_cars = fields.get("nr_of_cars")[0]
+                image = fields.get("img")[0]
 
-            
-            insert_car_record(brand, model, car_type, production_year, fuel_type, gearbox_type, price, city)
-
-            html = f"<html><head></head><body><h1>Dodano</h1></body></html>"
+            if car_id == "":
+                insert_car_record(brand, model, car_type, production_year, fuel_type, gearbox_type, price, city, nr_of_cars, image)
+                html = f"<html><head></head><body><h1>Dodano</h1></body></html>"
+            else:
+                edit_car_record(car_id, brand, model, car_type, production_year, fuel_type, gearbox_type, price, city, nr_of_cars, image)
+                html = f"<html><head></head><body><h1>Zmieniono</h1></body></html>"
                 
             self.send_response(200, "OK")
             self.end_headers()
@@ -274,9 +326,33 @@ class MyServer(BaseHTTPRequestHandler):
             )
             csearch = form.getvalue("csearch")
 
-            self.path = './templates/start_page.html'
+            self.path = './templates/customer/offer.html'
             file = read_html_template(self.path)
             file = insert_serached_cars(file, csearch)
+            file = insert_login_button(self, file, SESSIONS)
+            file = insert_filter_options(file)
+        
+            self.send_response(200, "OK")
+            self.end_headers()
+            self.wfile.write(bytes(file, "utf-8"))
+
+        if self.path == '/filter_cars':
+            
+            form = cgi.FieldStorage(
+                fp=self.rfile,
+                headers=self.headers,
+                environ={'REQUEST_METHOD': 'POST'}
+            )
+            
+            brand = form.getvalue("brand")
+            car_type = form.getvalue("car_type")
+            fuel_type = form.getvalue("fuel_type")
+            gearbox_type = form.getvalue("gearbox_type")
+            city = form.getvalue("city")
+
+            self.path = './templates/customer/offer.html'
+            file = read_html_template(self.path)
+            file = insert_filtered_cars(file, brand, car_type, fuel_type, gearbox_type, city)
             file = insert_login_button(self, file, SESSIONS)
         
             self.send_response(200, "OK")
@@ -309,6 +385,7 @@ class MyServer(BaseHTTPRequestHandler):
                 self.send_response(200, "OK")
                 self.end_headers()
                 self.wfile.write(bytes(html, "utf-8"))
+
 
 
     def generate_sid(self):

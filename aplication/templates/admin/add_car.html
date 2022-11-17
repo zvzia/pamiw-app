@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="pl">
+    <head>
+        <meta charset="utf-8">
+        
+        <title>Admin</title>
+        
+        <style>
+            body{
+                font-family: arial, sans-serif;
+            }
+            
+            .center {
+                margin: auto;
+                border: 3px solid #bebebe;
+                padding: 10px;
+                text-align: center;
+            }
+
+            .pad{
+                padding-top: 5%;
+                padding-bottom: 5%;
+                padding-left: 30%;
+                padding-right: 30%;
+            }
+
+            .button {
+                border: none;
+                color: white;
+                padding: 15px 32px;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                font-size: 16px;
+                margin: 4px 2px;
+                transition-duration: 0.4s;
+                cursor: pointer;
+                background-color: white; 
+                color: black; 
+                border: 2px solid rgb(80, 80, 80);
+                }
+                
+            .button:hover {
+                background-color: rgb(80, 80, 80);
+                color: white;
+            }
+
+            input {
+            border: 1px solid transparent;
+            background-color: #f1f1f1;
+            padding: 10px;
+            font-size: 16px;
+            }
+
+            input[type=text] {
+            background-color: #f1f1f1;
+            width: 30%;
+            }
+            input[type=password] {
+            background-color: #f1f1f1;
+            width: 30%;
+            }
+
+            input[type=submit] {
+            background-color: rgb(124, 124, 124);
+            color: #fff;
+            transition-duration: 0.4s;
+            cursor: pointer;
+            border: 2px solid rgb(80, 80, 80);
+            }
+
+            input[type=submit]:hover {
+                background-color: rgb(80, 80, 80);
+                border: 2px solid rgb(0, 0, 0);
+            }
+
+        
+        </style>
+    </head>
+
+
+    <body class="pad">
+
+        <div class="center">
+            <h1>Edytuj samochód:</h1>
+            <form method="POST", action='/addCar' enctype="multipart/form-data">
+                <input type="hidden" id="car_id" name="car_id" value="$carid" ><br><br>
+
+                <label for="brand">marka</label><br>
+                <input type="text" id="brand" name="brand" value="$brand"><br><br>
+
+                <label for="model">model</label><br>
+                <input type="text" id="model" name="model" value="$model"><br><br>
+
+                <label for="car_type">Typ</label><br>
+                <input type="text" id="car_type" name="car_type" value="$cartype"><br><br>
+
+                <label for="production_year">Rok produkcji</label><br>
+                <input type="text" id="production_year" name="production_year" value="$productionyear"><br><br>
+
+                <label for="fuel_type">Typ paliwa</label><br>
+                <input type="text" id="fuel_type" name="fuel_type" value="$fueltype"><br><br>
+
+                <label for="gearbox_type">Skrzynia biegów</label><br>
+                <input type="text" id="gearbox_type" name="gearbox_type" value="$gearboxtype"><br><br>
+
+                <label for="price">Cena</label><br>
+                <input type="text" id="price" name="price" value="$price"><br><br>
+
+                <label for="city">Miasto</label><br>
+                <input type="text" id="city" name="city" value="$city"><br><br>
+
+                <label for="nr_of_cars">Ilość aut</label><br>
+                <input type="text" id="nr_of_cars" name="nr_of_cars" value="$nrofcars"><br><br>
+
+                <label for="img">Zdjęcie</label>
+                <input type="file" id="img" name="img" accept="image/*"><br><br>
+
+                <input type="submit" value="Edytuj">
+              </form> 
+
+        </div>
+
+    </body>
+</html>

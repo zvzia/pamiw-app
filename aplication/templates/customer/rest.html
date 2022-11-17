@@ -31,6 +31,8 @@
                 padding: 10px;
                 padding-bottom: 5%;
                 text-align: center;
+                border: 3px solid #bebebe;
+                width: 80%;
             }
 
             #wrapper {
@@ -101,58 +103,21 @@
         <br><br>
 
         <div class="center" id="wrapper">
-            <h1>$carname</h1>
-
+            
             <div id="first" style="margin-left: 10%;">
-                <img src="carimage.png" width="200%"/>
+                <img src="D:\Studia\sem5\AplikacjeMobiWeb\app\aplication\templates\carimage.png" width="600px"/>
             </div>
             <div id="seccond">
-                <table class="table_right">
-                    <tr>
-                        <td>Marka:</td>
-                        <td>$brand</td>
-                    </tr>
-                    <tr>
-                        <td>Model:</td>
-                        <td>$model</td>
-                    </tr>
-                    <tr>
-                        <td>Typ:</td>
-                        <td>$car_type</td>
-                    </tr>
-                    <tr>
-                        <td>Rok produkcji:</td>
-                        <td>$production_year</td>
-                    </tr>
-                    <tr>
-                        <td>Typ paliwa:</td>
-                        <td>$fuel_type</td>
-                    </tr>
-                    <tr>
-                        <td>Skrzynia biegów:</td>
-                        <td>$gearbox_type</td>
-                    </tr>
-                    <tr>
-                        <td>Cena za dobe::</td>
-                        <td>$price</td>
-                    </tr>
-                    <tr>
-                        <td>Miasto:</td>
-                        <td>$city</td>
-                    </tr> 
-                    
-                </table>
-
-                
+                <br><br><br>
+                <h1>$carname</h1>
+                <p>$productionyear</p>
+                <p>$price /doba</p>
                 
             </div>
 
-            <br><br><br><br><br><br><br><br>
+            <br><br><br>
             <a href="/oferta">
-                <button class="button">Powrót</button></a>
-            <a href="/reserve_car" method="post" >
-                    <button class="button">Zarezerwuj</button></a>
-            
+                <button class="button">Wyswietl</button></a>
             
         </div>
 

@@ -1,7 +1,7 @@
 from sqlite3 import connect
 from sqlite3.dbapi2 import Cursor
 
-DB_NAME = "database/administrator.db"  
+DB_NAME = "database/car_rental.db"  
 
 # create database inside database folder if not exists
 connection = connect(DB_NAME)
