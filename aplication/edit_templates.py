@@ -117,7 +117,7 @@ def insert_login_button(self, file, sessions):
          
         if (cookies["sid"] in sessions):
             self.user = cookies["sid"]
-            file = file.replace("$logowanie", "<a href=\"messages\"><button class=\"icon\"><img src=\"messages.png\" width=\"30px\"></button></a> <a href=\"profile_page\"><button class=\"button\">Profil</button></a><a href=\"log_out\"><button class=\"button\">Wyloguj się</button></a>")
+            file = file.replace("$logowanie", "<a href=\"messages\"><button class=\"button\">Wiadomości</button></a> <a href=\"profile_page\"><button class=\"button\">Profil</button></a><a href=\"log_out\"><button class=\"button\">Wyloguj się</button></a>")
         else:
             file = file.replace("$logowanie","<a href=\"login_page\"><button class=\"button\">Zaloguj się</button></a><a href=\"register_page\"><button class=\"button\">Zarejestruj się</button></a>")
             self.user = False
