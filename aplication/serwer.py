@@ -351,6 +351,7 @@ class MyServer(BaseHTTPRequestHandler):
             file = read_html_template(self.path)
             file = insert_serached_cars(file, csearch)
             file = insert_login_button(self, file, SESSIONS)
+            file = insert_autocomplete_data(file)
             file = insert_filter_options(file)
         
             self.send_response(200, "OK")
@@ -375,6 +376,8 @@ class MyServer(BaseHTTPRequestHandler):
             file = read_html_template(self.path)
             file = insert_filtered_cars(file, brand, car_type, fuel_type, gearbox_type, city)
             file = insert_login_button(self, file, SESSIONS)
+            file = insert_autocomplete_data(file)
+            file = insert_filter_options(file)
         
             self.send_response(200, "OK")
             self.end_headers()

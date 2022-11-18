@@ -46,11 +46,25 @@ def insert_empty_info(file):
     return file
 
 
-def insert_serached_cars(file, brand):
-    data = fetch_car_records_by_brand(brand)
+def insert_serached_cars(file, search):
+    data = fetch_car_records_by_brand(search)
+    data2 = fetch_car_records_by_model(search)
     html_string = ""
     
     for row in data:
+        carId = row[0]
+        carname = row[1] + " - " + row[2]
+        productionyear = str(row[4])
+        price = str(row[7])
+
+        html_string += "<div class=\"center\" id=\"wrapper\">"
+        html_string += "<div id=\"first\" style=\"margin-left: 10%;\">" + "<img class=\"centered-and-cropped\" width=\"600px\" height=\"400px\" src=\"getImageFromCarDb?carId="+ str(carId) + "\" />" + "</div>"
+
+        html_string += "<div id=\"seccond\">" + "<br><br><br>" + "<h1>" + carname + "</h1>" + "<p>" + productionyear + "</p>" + "<p>" + price + " /doba</p>" + "</div>"
+        html_string += "<br><br><br>"
+        html_string += "<a href=\"car_info?car_id=" + str(row[0])  + "\"><button class=\"buttontransparent\">Wyświetl</button></a>" + "</div>" + "<br><br>"
+
+    for row in data2:
         carId = row[0]
         carname = row[1] + " - " + row[2]
         productionyear = str(row[4])
@@ -164,6 +178,7 @@ def insert_car_info(file, carId):
     file = file.replace("$gearbox_type", car[6])
     file = file.replace("$price", str(car[7]))
     file = file.replace("$city", car[8])
+    file = file.replace("$image", "<img class=\"centered-and-cropped\" width=\"600px\" height=\"400px\" src=\"getImageFromCarDb?carId="+ str(carId) + "\" />")
 
     return file
 

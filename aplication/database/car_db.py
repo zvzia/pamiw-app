@@ -75,6 +75,11 @@ def fetch_car_records_by_brand(brand):
     records = cursor.fetchall()
     return records
 
+def fetch_car_records_by_model(model):
+    data = cursor.execute("SELECT id, brand, model, car_type, production_year, fuel_type, gearbox_type, price, city, image FROM Car WHERE model = ?", [model])
+    records = cursor.fetchall()
+    return records
+
 def fetch_car_records_by_filter_conditions(brand, car_type, fuel_type, gearbox_type, city):
     query = "SELECT id, brand, model, car_type, production_year, fuel_type, gearbox_type, price, city, image FROM Car WHERE "
     if brand != "any":
