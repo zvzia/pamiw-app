@@ -4,6 +4,7 @@ import cgi
 from http.client import HTTP_PORT
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from random import randint
+import datetime
 
 from matplotlib.style import use
 
@@ -11,6 +12,7 @@ from database.user_db import *
 from database.reservation_db import *
 from database.car_db import *
 from database.administrator_db import *
+from database.messages_db import *
 from login_service import *
 from edit_templates import *
 
@@ -178,8 +180,19 @@ class MyServer(BaseHTTPRequestHandler):
             self.send_response(200, "OK")
             self.end_headers()
             self.wfile.write(bytes(file, "utf-8"))
+        
+        if self.path == '/messages':
+            self.path = './templates/customer/messages.html'
+            file = read_html_template(self.path)
+            file = insert_messages(self, file, SESSIONS)
+            self.send_response(200, "OK")
+            self.send_header('Content-type', 'text/html; charset=utf-8')
+            self.end_headers()
+            self.wfile.write(bytes(file, 'utf-8'))
 
         
+
+        #admin -------------------------------------------------
 
         if self.path == '/admin':
             self.path = './templates/admin/admin_start_page.html'
@@ -212,6 +225,14 @@ class MyServer(BaseHTTPRequestHandler):
             self.path = './templates/admin/add_car.html'
             file = read_html_template(self.path)
             file = insert_empty_info(file)
+            self.send_response(200, "OK")
+            self.send_header('Content-type', 'text/html; charset=utf-8')
+            self.end_headers()
+            self.wfile.write(bytes(file, 'utf-8'))
+
+        if self.path == '/admin/send_message':
+            self.path = './templates/admin/send_message.html'
+            file = read_html_template(self.path)
             self.send_response(200, "OK")
             self.send_header('Content-type', 'text/html; charset=utf-8')
             self.end_headers()
@@ -386,6 +407,26 @@ class MyServer(BaseHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(bytes(html, "utf-8"))
 
+        if self.path == '/send_message':
+            ctype, pdict = cgi.parse_header(self.headers.get('content-type'))
+            pdict['boundary'] = bytes(pdict['boundary'], 'utf-8')
+
+            if ctype == 'multipart/form-data':
+                fields = cgi.parse_multipart(self.rfile, pdict)
+                username = fields.get("username")[0]
+                content = fields.get("content")[0]
+                currentDateTime = datetime.datetime.now()
+
+                if 0 == 0:
+                    #TODO sprawdzanie odbiorcy
+                    user_id = get_user_id_by_username(username)[0][0]
+                    insert_message_record(user_id, content, "unread", currentDateTime)
+
+
+                self.send_response(200, "OK")
+                self.end_headers()
+                self.wfile.write(bytes("ok", "utf-8"))
+
 
 
     def generate_sid(self):
@@ -408,6 +449,7 @@ if __name__ == "__main__":
     create_car_table()
     create_reservation_table()
     create_administrator_table()
+    create_messages_table()
 
     server = HTTPServer((HOST, PORT), MyServer)
     print(f"Server started http://{HOST}:{PORT}")

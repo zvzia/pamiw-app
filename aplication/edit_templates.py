@@ -1,4 +1,6 @@
 from database.car_db import *
+from database.user_db import *
+from database.messages_db import *
 
 def insert_car_table_for_admin(file):
     data = fetch_car_records()
@@ -210,4 +212,27 @@ def insert_cities_buttons(file):
 
     return file
     
+def insert_messages(self, file, sessions):
+    cookies = self.parse_cookies(self.headers["Cookie"])
+    if "sid" in cookies:
+        if (cookies["sid"] in sessions):
+            username = sessions[self.user][0]
+            user_id = get_user_id_by_username(username)[0][0]
+            self.user = cookies["sid"]
+
+            
+            data = fetch_message_records_by_user_id(user_id)
+            html_string = "<hr>"
+            
+            for row in data:
+                content = row[2]
+                date = row[4]
+
+                html_string += "<p>" + content + "</p> <br>" + str(date) +"<hr>"
+
+            file = file.replace("$messages", html_string)
+        else:
+            self.user = False
+
+    return file
                     

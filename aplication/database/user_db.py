@@ -44,3 +44,8 @@ def fetch_user_passwrd_by_username(username):
 def delete_user_record_by_username(username):
     data = cursor.execute("DELETE FROM User WHERE username = ?", [username])
     return data
+
+def get_user_id_by_username(username):
+    data = cursor.execute("SELECT id FROM User WHERE username = ?", [username])
+    records = cursor.fetchall()
+    return records
