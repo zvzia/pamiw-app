@@ -99,6 +99,7 @@ class MyServer(BaseHTTPRequestHandler):
         if self.path == '/profile_page':
             self.path = './templates/customer/profile_page.html'
             file = read_html_template(self.path)
+            file = insert_login_button(self, file, SESSIONS)
             self.send_response(200, "OK")
             self.send_header('Content-type', 'text/html; charset=utf-8')
             self.end_headers()
@@ -187,6 +188,15 @@ class MyServer(BaseHTTPRequestHandler):
             file = insert_messages(self, file, SESSIONS)
             self.send_response(200, "OK")
             self.send_header('Content-type', 'text/html; charset=utf-8')
+            self.end_headers()
+            self.wfile.write(bytes(file, 'utf-8'))
+
+        if self.path[-10:] == 'styles.css':
+            self.path = './static/css/styles.css'
+            file = read_html_template(self.path)
+            
+            self.send_response(200, "OK")
+            self.send_header('Content-type', 'text/css')
             self.end_headers()
             self.wfile.write(bytes(file, 'utf-8'))
 

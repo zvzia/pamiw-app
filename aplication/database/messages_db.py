@@ -29,5 +29,6 @@ def fetch_message_records_by_user_id(user_id):
     return data
 
 def change_message_status_by_id(id, status):
-    data = cursor.execute("UPDATE Message SET status = ? WHERE id = ?", [status, id])
-    return data
+    data = cursor.execute("UPDATE Message SET status = '" + status + "' WHERE id = " + str(id))
+    connection.commit()
+    

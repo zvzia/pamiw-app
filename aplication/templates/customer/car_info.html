@@ -3,94 +3,29 @@
     <head>
         <meta charset="utf-8">
         <title>$carname</title>
-        
-        <style>
-            body{
-                font-family: arial, sans-serif;
-            }
+        <link rel="stylesheet" type="text/css" href="../../static/css/styles.css"/>
 
+        <style>
             table {
                 background-color: #ecececef;
+                width: 100%;
                /* border: 0;
                 border-collapse: collapse;*/
             }
 
-            .menu{
-                text-align: right;
-                background-color: #f1f1f1;
-            }
-            
             td, th {
                 border: 0px;
                 text-align: left;
                 padding: 8px;
             }
-            
-            .center {
-                margin: auto;
-                padding: 10px;
-                padding-bottom: 5%;
-                text-align: center;
-            }
-
-            #wrapper {
-                overflow: hidden;
-            }
-            #first {
-                float:left;
-            }
-            #second {
-                float: right;
-            }
-
-            .pad{
-                padding-top: 5%;
-                padding-bottom: 5%;
-                padding-left: 10%;
-                padding-right: 10%;
-            }
-
-            .button {
-                border: none;
-                color: white;
-                padding: 15px 32px;
-                text-align: center;
-                text-decoration: none;
-                display: inline-block;
-                font-size: 16px;
-                margin: 4px 2px;
-                transition-duration: 0.4s;
-                cursor: pointer;
-                background-color: #f1f1f1; 
-                color: black; 
-                border: 0px solid rgb(80, 80, 80);
-                }
-                
-            .button:hover {
-                background-color: rgb(80, 80, 80);
-                color: white;
-            }
-
-            .table_right {
-                margin-left: auto; 
-                margin-right: 20%;
-                margin-top: 5%;
-            }
-
-            img {
-                border: 5px solid #f1f1f1;
-            }
-
-            .centered-and-cropped { object-fit: cover }
-
-            
         </style>
+
     </head>
 
 
     <body background="background2.png">
         <div class="menu" id="wrapper">
-            <div id="first">
+            <div id="left">
                 <a href="/oferta" method="post">
                     <button class="button">Oferta</button></a>
                 <a href="/miasta" method="post">
@@ -99,70 +34,64 @@
                     <button class="button">O nas</button></a>
             </div>
 
-            <div id="second">
+            <div id="right">
                 $logowanie
             </div>
             
         </div>
         <br><br>
 
-        <div class="center" id="wrapper">
-            <h1>$carname</h1>
+        <div class="pad5">
+            <div class="centercarinfo" id="wrapper">
+                <h1>$carname</h1>
 
-            <div id="first" style="margin-left: 10%;">
-                $image
-            </div>
-            <div id="seccond">
-                <table class="table_right">
-                    <tr>
-                        <td>Marka:</td>
-                        <td>$brand</td>
-                    </tr>
-                    <tr>
-                        <td>Model:</td>
-                        <td>$model</td>
-                    </tr>
-                    <tr>
-                        <td>Typ:</td>
-                        <td>$car_type</td>
-                    </tr>
-                    <tr>
-                        <td>Rok produkcji:</td>
-                        <td>$production_year</td>
-                    </tr>
-                    <tr>
-                        <td>Typ paliwa:</td>
-                        <td>$fuel_type</td>
-                    </tr>
-                    <tr>
-                        <td>Skrzynia biegów:</td>
-                        <td>$gearbox_type</td>
-                    </tr>
-                    <tr>
-                        <td>Cena za dobe::</td>
-                        <td>$price</td>
-                    </tr>
-                    <tr>
-                        <td>Miasto:</td>
-                        <td>$city</td>
-                    </tr> 
-                    
-                </table>
+                <div id="left" style="margin-left: 10%;">
+                    $image
+                </div>
+                <div id="right" style="margin-right: 13%;">
+                    <table class="infotable">
+                        <tr>
+                            <td>Marka:</td>
+                            <td>$brand</td>
+                        </tr>
+                        <tr>
+                            <td>Model:</td>
+                            <td>$model</td>
+                        </tr>
+                        <tr>
+                            <td>Typ:</td>
+                            <td>$car_type</td>
+                        </tr>
+                        <tr>
+                            <td>Rok produkcji:</td>
+                            <td>$production_year</td>
+                        </tr>
+                        <tr>
+                            <td>Typ paliwa:</td>
+                            <td>$fuel_type</td>
+                        </tr>
+                        <tr>
+                            <td>Skrzynia biegów:</td>
+                            <td>$gearbox_type</td>
+                        </tr>
+                        <tr>
+                            <td>Cena za dobe::</td>
+                            <td>$price</td>
+                        </tr>
+                        <tr>
+                            <td>Miasto:</td>
+                            <td>$city</td>
+                        </tr> 
+                        
+                    </table>
+                    <br><br><br>
+                    <a href="/oferta">
+                        <button class="button">Powrót</button></a>
+                    <a href="/reserve_car" method="post" >
+                            <button class="button">Zarezerwuj</button></a>
 
-                
-                
-            </div>
-
-            <br><br><br><br><br><br><br><br>
-            <a href="/oferta">
-                <button class="button">Powrót</button></a>
-            <a href="/reserve_car" method="post" >
-                    <button class="button">Zarezerwuj</button></a>
-            
-            
+                </div>
+            </div>            
         </div>
-
-        
-
     </body>
 </html>
