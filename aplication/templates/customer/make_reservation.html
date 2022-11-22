@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="pl">
+    <head>
+        <meta charset="utf-8">
+        <title>Rezerwacja</title>
+        <link rel="stylesheet" type="text/css" href="../../static/css/styles.css"/>
+    
+    </head>
+
+
+    <body>
+
+        <div class="menu" id="wrapper">
+            <div id="left">
+                <a href="/oferta" method="post">
+                    <button class="button">Oferta</button></a>
+                <a href="/miasta" method="post">
+                    <button class="button">Miasta</button></a>
+                <a href="/oNas" method="post">
+                    <button class="button">O nas</button></a>
+            </div>
+
+            <div id="right">
+                $logowanie
+            </div> 
+        </div>
+
+        <div class = "padlogin">
+            <div class="center">
+                <h1>Rezerwacja: $carname</h1>
+                <form method="POST", action='/makeReservation' enctype="multipart/form-data">
+                    <input type="hidden" id="car_id" name="car_id" value="$carid" >
+                    <input type="hidden" id="user_id" name="user_id" value="$userid" >
+
+                    <label for="start">Dzień rozpoczęcia</label><br>
+                    <input type="date" id="start" name="start"><br><br>
+
+                    <label for="end">Dzień zakończenia</label><br>
+                    <input type="date" id="end" name="end"><br><br>
+
+                    <input type="submit" value="Rezerwuj">
+                </form> 
+
+                <br>
+                <a href="/car_info?car_id=$carid">
+                    <button class="button">Powrót</button>
+                </a>
+
+            </div>
+        </div>
+
+
+        <script>
+            start.min = new Date().toISOString().split("T")[0];
+        </script>
+    </body>
+</html>

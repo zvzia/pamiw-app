@@ -5,6 +5,8 @@ from http.client import HTTP_PORT
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from random import randint
 import datetime
+import asyncio
+import websockets
 
 from matplotlib.style import use
 
@@ -15,6 +17,7 @@ from database.administrator_db import *
 from database.messages_db import *
 from login_service import *
 from edit_templates import *
+from web_sockets import *
 
 HOST = "0.0.0.0"
 PORT = 8080
@@ -46,6 +49,16 @@ class MyServer(BaseHTTPRequestHandler):
         if "sid" in cookies:
             if (cookies["sid"] in SESSIONS):
                 self.user = cookies["sid"]
+
+        if self.path == '/test':
+            self.path = './templates/test.php'
+            file = read_html_template(self.path)
+
+                
+            self.send_response(200, "OK")
+            self.send_header('Content-type', 'text/html; charset=utf-8')
+            self.end_headers()
+            self.wfile.write(bytes(file, 'utf-8'))  
 
         if self.path == '/':
             self.path = './templates/customer/start_page.html'
@@ -127,6 +140,25 @@ class MyServer(BaseHTTPRequestHandler):
             self.send_header('Content-type', 'text/html; charset=utf-8')
             self.end_headers()
             self.wfile.write(bytes(file, 'utf-8'))
+
+        if self.path[0:18] == '/make_reservation?':
+            carId = int(self.path[25:])
+            self.path = './templates/customer/make_reservation.html'
+
+            if(hasattr(self, "user")):
+                username = SESSIONS[self.user][0]
+
+                file = read_html_template(self.path)
+                file = insert_login_button(self, file, SESSIONS)
+                file = insert_reservation_form_info(file, carId, username)
+            else:
+                file = "Musisz się zalogować"
+
+            self.send_response(200, "OK")
+            self.send_header('Content-type', 'text/html; charset=utf-8')
+            self.end_headers()
+            self.wfile.write(bytes(file, 'utf-8'))
+
 
         if self.path[-4:] == '.png' or self.path[-4] == '.jpg':
             self.path = "templates/" + self.path.partition("/")[-1]
@@ -243,6 +275,7 @@ class MyServer(BaseHTTPRequestHandler):
         if self.path == '/admin/send_message':
             self.path = './templates/admin/send_message.html'
             file = read_html_template(self.path)
+            #sent websocket event
             self.send_response(200, "OK")
             self.send_header('Content-type', 'text/html; charset=utf-8')
             self.end_headers()
@@ -440,6 +473,24 @@ class MyServer(BaseHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(bytes("ok", "utf-8"))
 
+        if self.path == '/makeReservation':
+            ctype, pdict = cgi.parse_header(self.headers.get('content-type'))
+            pdict['boundary'] = bytes(pdict['boundary'], 'utf-8')
+
+            if ctype == 'multipart/form-data':
+                fields = cgi.parse_multipart(self.rfile, pdict)
+                car_id = fields.get("car_id")[0]
+                user_id = fields.get("user_id")[0]
+                start = fields.get("start")[0]
+                end = fields.get("end")[0]
+
+                insert_reservation_record(1 ,start, end, car_id, user_id)
+
+                
+            self.send_response(200, "OK")
+            self.end_headers()
+            self.wfile.write(bytes("OK", "utf-8"))
+
 
 
     def generate_sid(self):
@@ -463,6 +514,8 @@ if __name__ == "__main__":
     create_reservation_table()
     create_administrator_table()
     create_messages_table()
+
+    #asyncio.run(websocket_main())
 
     server = HTTPServer((HOST, PORT), MyServer)
     print(f"Server started http://{HOST}:{PORT}")

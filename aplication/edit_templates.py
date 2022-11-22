@@ -113,9 +113,9 @@ def insert_login_button(self, file, sessions):
             unread_messages = check_for_unread_messages(user_id)
 
             if(unread_messages == True):
-                file = file.replace("$logowanie", "<a href=\"messages\"><button class=\"button_new_mes\">Wiadomości [Nowe]</button></a> <a href=\"profile_page\"><button class=\"button\">Profil</button></a><a href=\"log_out\"><button class=\"button\">Wyloguj się</button></a>")
+                file = file.replace("$logowanie", "<a href=\"messages\"><button id = \"messagesbutton\" class=\"button_new_mes\">Wiadomości [Nowe]</button></a> <a href=\"profile_page\"><button class=\"button\">Profil</button></a><a href=\"log_out\"><button class=\"button\">Wyloguj się</button></a> <script src=\"new_message.js\"></script>")
             else:
-                file = file.replace("$logowanie", "<a href=\"messages\"><button class=\"button\">Wiadomości</button></a> <a href=\"profile_page\"><button class=\"button\">Profil</button></a><a href=\"log_out\"><button class=\"button\">Wyloguj się</button></a>")
+                file = file.replace("$logowanie", "<a href=\"messages\"><button id = \"messagesbutton\" class=\"button\">Wiadomości</button></a> <a href=\"profile_page\"><button class=\"button\">Profil</button></a><a href=\"log_out\"><button class=\"button\">Wyloguj się</button></a>")
         else:
             file = file.replace("$logowanie","<a href=\"login_page\"><button class=\"button\">Zaloguj się</button></a><a href=\"register_page\"><button class=\"button\">Zarejestruj się</button></a>")
             self.user = False
@@ -151,6 +151,7 @@ def insert_username_to_edit_data(file, username):
 def insert_car_info(file, carId):
     car = fetch_car_by_id(carId)[0]
     
+    file = file.replace("$carid", str(carId))
     file = file.replace("$carname", car[1] + " - " + car[2])
     file = file.replace("$brand", car[1])
     file = file.replace("$model", car[2])
@@ -257,4 +258,13 @@ def create_htm_string_carlist(carname, productionyear, row, carId, price):
     html_string += "<a href=\"car_info?car_id=" + str(row[0])  + "\"><button class=\"button\">Wyświetl</button></a>" + "</div></div>" + "<br><br>"
 
     return html_string
+
+def insert_reservation_form_info(file, carId, username):
+    car = fetch_car_by_id(carId)[0]
+    userId = get_user_id_by_username(username)[0][0]
+    file = file.replace("$carname", car[1] + " - " + car[2])
+    file = file.replace("$carid", str(carId))
+    file = file.replace("$userid", str(userId))
+
+    return file
                     
