@@ -259,12 +259,13 @@ def create_htm_string_carlist(carname, productionyear, row, carId, price):
 
     return html_string
 
-def insert_reservation_form_info(file, carId, username):
+def insert_reservation_form_info(file, carId, username, dates_to_exclude):
     car = fetch_car_by_id(carId)[0]
     userId = get_user_id_by_username(username)[0][0]
     file = file.replace("$carname", car[1] + " - " + car[2])
     file = file.replace("$carid", str(carId))
     file = file.replace("$userid", str(userId))
+    file = file.replace("$excludedates", str(dates_to_exclude))
 
     return file
                     

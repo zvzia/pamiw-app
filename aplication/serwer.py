@@ -148,9 +148,11 @@ class MyServer(BaseHTTPRequestHandler):
             if(hasattr(self, "user")):
                 username = SESSIONS[self.user][0]
 
+                dates_to_exclude = get_dates_to_exclude(carId)
+
                 file = read_html_template(self.path)
                 file = insert_login_button(self, file, SESSIONS)
-                file = insert_reservation_form_info(file, carId, username)
+                file = insert_reservation_form_info(file, carId, username, dates_to_exclude)
             else:
                 file = "Musisz się zalogować"
 
@@ -215,7 +217,7 @@ class MyServer(BaseHTTPRequestHandler):
             self.wfile.write(bytes(file, "utf-8"))
         
         if self.path == '/messages':
-            self.path = './templates/customer/messages.html'
+            self.path = '/templates/customer/messages.html'
             file = read_html_template(self.path)
             file = insert_messages(self, file, SESSIONS)
             self.send_response(200, "OK")
@@ -223,12 +225,21 @@ class MyServer(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(bytes(file, 'utf-8'))
 
-        if self.path[-10:] == 'styles.css':
-            self.path = './static/css/styles.css'
+        if self.path[-4:] == '.css':
+            self.path = "./" + self.path.partition("/")[-1]
             file = read_html_template(self.path)
             
             self.send_response(200, "OK")
             self.send_header('Content-type', 'text/css')
+            self.end_headers()
+            self.wfile.write(bytes(file, 'utf-8'))
+
+        if self.path[-3:] == '.js':
+            self.path = "./" + self.path.partition("/")[-1]
+            file = read_html_template(self.path)
+            
+            self.send_response(200, "OK")
+            self.send_header('Content-type', 'text/js')
             self.end_headers()
             self.wfile.write(bytes(file, 'utf-8'))
 

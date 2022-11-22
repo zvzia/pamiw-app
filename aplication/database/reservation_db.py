@@ -1,5 +1,6 @@
 from sqlite3 import connect
 from sqlite3.dbapi2 import Cursor
+from datetime import date, timedelta
 
 DB_NAME = "database/car_rental.db"  
 
@@ -30,4 +31,32 @@ def insert_reservation_record(reservation_nr, start_time, end_time, car_id, user
 
 def fetch_reservation_records():
     data = cursor.execute("SELECT * FROM Reservation")
-    return data
+    records = cursor.fetchall()
+    return records
+
+def get_dates_to_exclude(car_id):
+    from datetime import date
+    data = cursor.execute("SELECT * FROM Reservation WHERE car_id = ?", [car_id])
+    records = cursor.fetchall()
+    dates_to_exclude = []
+
+    for row in records:
+        start = row[2]
+        end = row[3]
+
+        start_array = start.split("-")
+        end_array = end.split("-")
+
+        date_start = date(int(start_array[0]), int(start_array[1]), int(start_array[2]))
+        date_end = date(int(end_array[0]), int(end_array[1]), int(end_array[2]))
+
+        date = date_start
+
+        while(date != date_end):
+            dates_to_exclude.append(str(date))
+            date = date + timedelta(days=1)
+
+        dates_to_exclude.append(str(date_end))
+            
+    return dates_to_exclude
+

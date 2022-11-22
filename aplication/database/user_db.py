@@ -34,7 +34,8 @@ def insert_all_user_info(username, password, name, surname, email):
 
 def fetch_user_records():
     data = cursor.execute("SELECT * FROM User")
-    return data
+    records = cursor.fetchall()
+    return records
 
 def fetch_user_passwrd_by_username(username):
     data = cursor.execute("SELECT password FROM User WHERE username = ?", [username])
