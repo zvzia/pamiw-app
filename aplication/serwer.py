@@ -30,7 +30,7 @@ from database.administrator_db import *
 from database.messages_db import *
 from login_service import *
 from edit_templates import *
-from web_sockets import *
+#from web_sockets import *
 
 HOST = "0.0.0.0"
 PORT = 8080
@@ -586,7 +586,7 @@ async def send_message(websocket):
     while True:
         message = datetime.datetime.utcnow().isoformat() + "Z"
         await websocket.send(message)
-        await asyncio.sleep(random.random() * 2 + 1)
+        #await asyncio.sleep(random.random() * 2 + 1)
 
 async def websocket_server():
     async with websockets.serve(send_message, "localhost", 5678):
