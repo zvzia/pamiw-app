@@ -1,12 +1,25 @@
 import re
 import sys
 import cgi
+import os
 from http.client import HTTP_PORT
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from random import randint
 import datetime
 import asyncio
 import websockets
+import threading 
+
+from reportlab.pdfgen import canvas
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.lib.pagesizes import A4
+from barcode import EAN13
+from barcode.writer import ImageWriter
+import uuid
+
+from threading import Thread
+from socketserver import ThreadingMixIn
 
 from matplotlib.style import use
 
@@ -39,8 +52,33 @@ def read_bytes_from_file(path):
     
     return data
 
+def create_receipt(self, reservation_nr, name, surname, car_name, start, end):
+    my_code = EAN13(reservation_nr, writer=ImageWriter())
+    my_code.save("tmp/ean")
+
+    pdfmetrics.registerFont(TTFont('Arial', 'arial.ttf'))
+    my_canvas = canvas.Canvas("tmp/Potwierdzenie.pdf", pagesize=A4)
+    my_canvas.setFont("Arial", 14)
+    my_canvas.drawString(100, 750, "Numer rezerwacji: " + reservation_nr)
+    my_canvas.drawString(100, 730, "Imię i Nazwisko: " + name + " " + surname)
+    my_canvas.drawString(100, 710, "Samochód: " + car_name)
+    my_canvas.drawString(100, 690, "Od: " + start)
+    my_canvas.drawString(100, 670, "Do: " + end)
+    my_canvas.drawImage("tmp/ean.png", 350, 650, 200, 107)
+    my_canvas.save()
+
+    file = read_bytes_from_file("tmp/Potwierdzenie.pdf")
+    self.send_response(200, "OK")
+    self.send_header('Content-type', 'application/pdf')
+    self.end_headers()
+    self.wfile.write(file)
+
+    os.remove("tmp/ean.png")
+    os.remove("tmp/Potwierdzenie.pdf")
 
 
+class ThreadingHTTPServer(ThreadingMixIn, HTTPServer):
+    daemon_threads = True
 
 class MyServer(BaseHTTPRequestHandler):
 
@@ -95,11 +133,13 @@ class MyServer(BaseHTTPRequestHandler):
 
         if self.path == '/log_out':
             self.logout()
-            html = f"<html><head></head><body><h1>Wylogowano</h1> <a href=\"/\"><button class=\"button\">Powrót</button></a></body></html>"
+            file = read_html_template('./templates/customer/info.html')
+            file = file.replace("$info", "Wylogowano")
+            file = file.replace("$href", "")
             self.send_response(200, "OK")
             self.send_header('Content-type', 'text/html; charset=utf-8')
             self.end_headers()
-            self.wfile.write(bytes(html, 'utf-8'))
+            self.wfile.write(bytes(file, 'utf-8'))
 
         if self.path == '/register_page':
             self.path = './templates/customer/register_page.html'
@@ -217,7 +257,7 @@ class MyServer(BaseHTTPRequestHandler):
             self.wfile.write(bytes(file, "utf-8"))
         
         if self.path == '/messages':
-            self.path = '/templates/customer/messages.html'
+            self.path = './templates/customer/messages.html'
             file = read_html_template(self.path)
             file = insert_messages(self, file, SESSIONS)
             self.send_response(200, "OK")
@@ -293,6 +333,9 @@ class MyServer(BaseHTTPRequestHandler):
             self.wfile.write(bytes(file, 'utf-8'))
 
 
+
+
+
     
 
     def do_POST(self):
@@ -313,28 +356,32 @@ class MyServer(BaseHTTPRequestHandler):
 
             #sprawdzanie zgodnosci hasla
             verification = check_login_info(username, password)
+            file = read_html_template('./templates/customer/info.html')
 
             if verification == True:
                 sid = self.generate_sid()
                 self.cookie = "sid={}".format(sid)
                 SESSIONS[sid] = [username]
-                html = f"<html><head></head><body><h1>Poprawne logowanie</h1> <a href=\"/\"><button class=\"button\">Powrót</button></a></body></html>"
-                #html = read_html_template('./templates/start_page.html')
+                file = file.replace("$info", "Zalogowano")
+                file = file.replace("$href", "")
+
             else:
-                html = f"<html><head></head><body><h1>Niepoprawne dane</h1></body></html>"
+                file = file.replace("$info", "Niepoprawne dane")
+                file = file.replace("$href", "login_page")
 
                 
             self.send_response(200, "OK")
             self.send_header('Content-type','text/html')
-            if self.cookie:
-                    self.send_header('Set-Cookie', self.cookie)
+            if hasattr(self, 'cookie'):
+                self.send_header('Set-Cookie', self.cookie)
             self.end_headers()
-            self.wfile.write(bytes(html, "utf-8"))
+            self.wfile.write(bytes(file, "utf-8"))
 
 
         if self.path == '/register':
             ctype, pdict = cgi.parse_header(self.headers.get('content-type'))
             pdict['boundary'] = bytes(pdict['boundary'], 'utf-8')
+            file = read_html_template('./templates/customer/info.html')
 
             if ctype == 'multipart/form-data':
                 fields = cgi.parse_multipart(self.rfile, pdict)
@@ -350,22 +397,26 @@ class MyServer(BaseHTTPRequestHandler):
                     if len(records) <= 0 :
                         #dodawanie rekordu
                         insert_user_record(username, hash_password(password), "", "", "")
-                        html = f"<html><head></head><body><h1>Poprawna rejestracja</h1></body></html> <a href=\"/\"><button class=\"button\">Powrót</button></a></body></html>"
+                        file = file.replace("$info", "Zarejestrowano")
+                        file = file.replace("$href", "")
                     else:
-                        html = f"<html><head></head><body><h1>Taki uzytkownik juz istnieje</h1></body></html> <a href=\"/register_page\"><button class=\"button\">Powrót</button></a></body></html>"
+                        file = file.replace("$info", "Taki użytkownik już istnieje")
+                        file = file.replace("$href", "register_page")
 
                 else:
-                    html = f"<html><head></head><body><h1>Hasla nie pokrywaja sie</h1></body></html> <a href=\"/register_page\"><button class=\"button\">Powrót</button></a></body></html>"
+                    file = file.replace("$info", "Hasła nie pokrywają się")
+                    file = file.replace("$href", "register_page")
 
 
                 self.send_response(200, "OK")
                 self.end_headers()
-                self.wfile.write(bytes(html, "utf-8"))
+                self.wfile.write(bytes(file, "utf-8"))
 
 
         if self.path == '/addCar':
             ctype, pdict = cgi.parse_header(self.headers.get('content-type'))
             pdict['boundary'] = bytes(pdict['boundary'], 'utf-8')
+            file = read_html_template('./templates/customer/info.html')
 
             if ctype == 'multipart/form-data':
                 fields = cgi.parse_multipart(self.rfile, pdict)
@@ -383,14 +434,16 @@ class MyServer(BaseHTTPRequestHandler):
 
             if car_id == "":
                 insert_car_record(brand, model, car_type, production_year, fuel_type, gearbox_type, price, city, nr_of_cars, image)
-                html = f"<html><head></head><body><h1>Dodano</h1></body></html>"
+                file = file.replace("$info", "Dodano")
+                file = file.replace("$href", "admin")
             else:
                 edit_car_record(car_id, brand, model, car_type, production_year, fuel_type, gearbox_type, price, city, nr_of_cars, image)
-                html = f"<html><head></head><body><h1>Zmieniono</h1></body></html>"
+                file = file.replace("$info", "Zmieniono")
+                file = file.replace("$href", "admin")
                 
             self.send_response(200, "OK")
             self.end_headers()
-            self.wfile.write(bytes(html, "utf-8"))
+            self.wfile.write(bytes(file, "utf-8"))
 
         if self.path == '/search_cars':
             
@@ -441,6 +494,8 @@ class MyServer(BaseHTTPRequestHandler):
             ctype, pdict = cgi.parse_header(self.headers.get('content-type'))
             pdict['boundary'] = bytes(pdict['boundary'], 'utf-8')
 
+            file = read_html_template('./templates/customer/info.html')
+
             if ctype == 'multipart/form-data':
                 fields = cgi.parse_multipart(self.rfile, pdict)
                 username = fields.get("username")[0]
@@ -454,15 +509,16 @@ class MyServer(BaseHTTPRequestHandler):
                 if password == passwordRetype:
                     delete_user_record_by_username(username)
                     insert_user_record(username, hash_password(password), name, surname, email)
-                    html = f"<html><head></head><body><h1>Dane zmienione</h1></body></html> <a href=\"/register_page\"><button class=\"button\">Powrót</button></a></body></html>"
+                    file = file.replace("$info", "Dane zostały zmienione")
+                    file = file.replace("$href", "data_edit")
 
                 else:
-                    html = f"<html><head></head><body><h1>Hasla nie pokrywaja sie</h1></body></html> <a href=\"/register_page\"><button class=\"button\">Powrót</button></a></body></html>"
-
+                    file = file.replace("$info", "Hasła nie pokrywają się")
+                    file = file.replace("$href", "data_edit")
 
                 self.send_response(200, "OK")
                 self.end_headers()
-                self.wfile.write(bytes(html, "utf-8"))
+                self.wfile.write(bytes(file, "utf-8"))
 
         if self.path == '/send_message':
             ctype, pdict = cgi.parse_header(self.headers.get('content-type'))
@@ -494,13 +550,19 @@ class MyServer(BaseHTTPRequestHandler):
                 user_id = fields.get("user_id")[0]
                 start = fields.get("start")[0]
                 end = fields.get("end")[0]
+                name = fields.get("name")[0]
+                surname = fields.get("surname")[0]
 
-                insert_reservation_record(1 ,start, end, car_id, user_id)
+                car = fetch_car_by_id(car_id)
+
+                car_name = car[0][1] + " - " + car[0][2]
+                reservation_nr = str(uuid.uuid4().int)[:13]
+                
+                create_receipt(self, reservation_nr, name, surname, car_name, start, end)
+                insert_reservation_record(reservation_nr ,start, end, car_id, user_id)
 
                 
-            self.send_response(200, "OK")
-            self.end_headers()
-            self.wfile.write(bytes("OK", "utf-8"))
+            
 
 
 
@@ -517,19 +579,28 @@ class MyServer(BaseHTTPRequestHandler):
         del SESSIONS[self.user]
         return "Logged Out"
 
+#------------------------------------------------------------------------------
+#websocket
+
+async def send_message(websocket):
+    while True:
+        message = datetime.datetime.utcnow().isoformat() + "Z"
+        await websocket.send(message)
+        await asyncio.sleep(random.random() * 2 + 1)
+
+async def websocket_server():
+    async with websockets.serve(send_message, "localhost", 5678):
+        print("started websocket server")
+        await asyncio.Future()  # run forever
+
+def start_websocket_server():
+    asyncio.run(websocket_server())
 
 
-if __name__ == "__main__":
-    create_user_table()
-    create_car_table()
-    create_reservation_table()
-    create_administrator_table()
-    create_messages_table()
-
-    #asyncio.run(websocket_main())
-
-    server = HTTPServer((HOST, PORT), MyServer)
-    print(f"Server started http://{HOST}:{PORT}")
+#http server
+def serve_on_port(port):
+    print(f"Server started http://{HOST}:{port}")
+    server = ThreadingHTTPServer((HOST,port), MyServer)
     try:
         server.serve_forever()
     except KeyboardInterrupt:
@@ -538,4 +609,20 @@ if __name__ == "__main__":
         sys.exit(0)
 
 
+def start_app():
+    create_user_table()
+    create_car_table()
+    create_reservation_table()
+    create_administrator_table()
+    create_messages_table()
+
+    #Thread(target=serve_on_port, args=[8080]).start()
+    #Thread(target=serve_on_port, args=[8080]).start()
+    #start_websocket_server()
+
+    serve_on_port(8080)
+
+
+if __name__ == "__main__":
+    start_app()
  

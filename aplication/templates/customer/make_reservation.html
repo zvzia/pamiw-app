@@ -13,6 +13,26 @@
         $( function() {
             $( "#start" ).datepicker();
             $( "#end" ).datepicker();
+          /*  start = $( "#start" )
+                .datepicker()
+                .on( "change", function() {
+                    end.datepicker( "option", "minDate", getDate( this ) );
+                }),
+                end = $( "#end" ).datepicker()
+            .on( "change", function() {
+                start.datepicker( "option", "maxDate", getDate( this ) );
+            });
+
+            function getDate( element ) {
+                var date;
+                try {
+                    date = $.datepicker.parseDate( dateFormat, element.value );
+                } catch( error ) {
+                    date = null;
+                }
+            
+                return date;
+                }*/
         } );
         </script>
     
@@ -49,6 +69,18 @@
                     <label for="end">Dzień zakończenia</label><br>
                     <input type="text" id="end" name="end"><br><br>
 
+                    <label for="name">Imię:</label><br>
+                    <input type="text" id="name" name="name"><br><br>
+
+                    <label for="surname">Nazwisko:</label><br>
+                    <input type="text" id="surname" name="surname"><br><br>
+
+                    <label for="phonenr">Numer telefonu:</label><br>
+                    <input type="text" id="phonenr" name="phonenr"><br><br>
+
+                    <label for="email">Email:</label><br>
+                    <input type="text" id="email" name="email"><br><br>
+
                     <input type="submit" value="Rezerwuj">
                 </form> 
 
@@ -62,7 +94,7 @@
 
 
         <script>
-            //start.min = new Date().toISOString().split("T")[0];
+            
             var array = $excludedates
             $('input').datepicker({
                 minDate: 0,
