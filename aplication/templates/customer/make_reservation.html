@@ -96,14 +96,14 @@
         <script>
             
             var array = $excludedates
-            $('start').datepicker({
+            $('#start').datepicker({
                 minDate: 0,
                 beforeShowDay: function(date){
                     var string = jQuery.datepicker.formatDate('yy-mm-dd', date);
                     return [$.inArray(string, array) == -1];
                 }
             });
-            $('end').datepicker({
+            $('#end').datepicker({
                 minDate: 0,
                 beforeShowDay: function(date){
                     var string = jQuery.datepicker.formatDate('yy-mm-dd', date);
