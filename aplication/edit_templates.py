@@ -1,4 +1,6 @@
 from database.car_db import *
+from database.user_db import *
+from database.messages_db import *
 
 def insert_car_table_for_admin(file):
     data = fetch_car_records()
@@ -44,8 +46,9 @@ def insert_empty_info(file):
     return file
 
 
-def insert_serached_cars(file, brand):
-    data = fetch_car_records_by_brand(brand)
+def insert_serached_cars(file, search):
+    data = fetch_car_records_by_brand(search)
+    data2 = fetch_car_records_by_model(search)
     html_string = ""
     
     for row in data:
@@ -54,15 +57,17 @@ def insert_serached_cars(file, brand):
         productionyear = str(row[4])
         price = str(row[7])
 
-        html_string += "<div class=\"center\" id=\"wrapper\">"
-        html_string += "<div id=\"first\" style=\"margin-left: 10%;\">" + "<img class=\"centered-and-cropped\" width=\"600px\" height=\"400px\" src=\"getImageFromCarDb?carId="+ str(carId) + "\" />" + "</div>"
-
-        html_string += "<div id=\"seccond\">" + "<br><br><br>" + "<h1>" + carname + "</h1>" + "<p>" + productionyear + "</p>" + "<p>" + price + " /doba</p>" + "</div>"
-        html_string += "<br><br><br>"
-        html_string += "<a href=\"car_info?car_id=" + str(row[0])  + "\"><button class=\"buttontransparent\">Wyświetl</button></a>" + "</div>" + "<br><br>"
-
-        
+        html_string += create_htm_string_carlist(carname, productionyear, row, carId, price)
     
+    for row in data2:
+        carId = row[0]
+        carname = row[1] + " - " + row[2]
+        productionyear = str(row[4])
+        price = str(row[7])
+
+        html_string += create_htm_string_carlist(carname, productionyear, row, carId, price)
+
+
     result = file.replace("$tabela", html_string)
     return result
 
@@ -76,15 +81,8 @@ def insert_car_table(file):
         productionyear = str(row[4])
         price = str(row[7])
 
-        html_string += "<div class=\"center\" id=\"wrapper\">"
-        html_string += "<div id=\"first\" style=\"margin-left: 10%;\">" + "<img class=\"centered-and-cropped\" width=\"600px\" height=\"400px\" src=\"getImageFromCarDb?carId="+ str(carId) + "\" />" + "</div>"
+        html_string += create_htm_string_carlist(carname, productionyear, row, carId, price)
 
-        html_string += "<div id=\"seccond\">" + "<br><br><br>" + "<h1>" + carname + "</h1>" + "<p>" + productionyear + "</p>" + "<p>" + price + " /doba</p>" + "</div>"
-        html_string += "<br><br><br>"
-        html_string += "<a href=\"car_info?car_id=" + str(row[0])  + "\"><button class=\"buttontransparent\">Wyświetl</button></a>" + "</div>" + "<br><br>"
-
-        
-    
     result = file.replace("$tabela", html_string)
     return result
 
@@ -98,15 +96,8 @@ def insert_filtered_cars(file, brand, car_type, fuel_type, gearbox_type, city):
         productionyear = str(row[4])
         price = str(row[7])
 
-        html_string += "<div class=\"center\" id=\"wrapper\">"
-        html_string += "<div id=\"first\" style=\"margin-left: 10%;\">" + "<img class=\"centered-and-cropped\" width=\"600px\" height=\"400px\" src=\"getImageFromCarDb?carId="+ str(carId) + "\" />" + "</div>"
+        html_string += create_htm_string_carlist(carname, productionyear, row, carId, price)
 
-        html_string += "<div id=\"seccond\">" + "<br><br><br>" + "<h1>" + carname + "</h1>" + "<p>" + productionyear + "</p>" + "<p>" + price + " /doba</p>" + "</div>"
-        html_string += "<br><br><br>"
-        html_string += "<a href=\"car_info?car_id=" + str(row[0])  + "\"><button class=\"buttontransparent\">Wyświetl</button></a>" + "</div>" + "<br><br>"
-
-        
-    
     result = file.replace("$tabela", html_string)
     return result
 
@@ -117,7 +108,14 @@ def insert_login_button(self, file, sessions):
          
         if (cookies["sid"] in sessions):
             self.user = cookies["sid"]
-            file = file.replace("$logowanie", "<a href=\"messages\"><button class=\"button\">Wiadomości</button></a> <a href=\"profile_page\"><button class=\"button\">Profil</button></a><a href=\"log_out\"><button class=\"button\">Wyloguj się</button></a>")
+            username = sessions[self.user][0]
+            user_id = get_user_id_by_username(username)[0][0]
+            unread_messages = check_for_unread_messages(user_id)
+
+            if(unread_messages == True):
+                file = file.replace("$logowanie", "<a href=\"messages\"><button id = \"messagesbutton\" class=\"button_new_mes\">Wiadomości [Nowe]</button></a> <a href=\"profile_page\"><button class=\"button\">Profil</button></a><a href=\"log_out\"><button class=\"button\">Wyloguj się</button></a> <script src=\"new_message.js\"></script>")
+            else:
+                file = file.replace("$logowanie", "<a href=\"messages\"><button id = \"messagesbutton\" class=\"button\">Wiadomości</button></a> <a href=\"profile_page\"><button class=\"button\">Profil</button></a><a href=\"log_out\"><button class=\"button\">Wyloguj się</button></a>")
         else:
             file = file.replace("$logowanie","<a href=\"login_page\"><button class=\"button\">Zaloguj się</button></a><a href=\"register_page\"><button class=\"button\">Zarejestruj się</button></a>")
             self.user = False
@@ -153,6 +151,7 @@ def insert_username_to_edit_data(file, username):
 def insert_car_info(file, carId):
     car = fetch_car_by_id(carId)[0]
     
+    file = file.replace("$carid", str(carId))
     file = file.replace("$carname", car[1] + " - " + car[2])
     file = file.replace("$brand", car[1])
     file = file.replace("$model", car[2])
@@ -162,6 +161,7 @@ def insert_car_info(file, carId):
     file = file.replace("$gearbox_type", car[6])
     file = file.replace("$price", str(car[7]))
     file = file.replace("$city", car[8])
+    file = file.replace("$image", "<img class=\"centered-and-cropped\" width=\"600px\" height=\"400px\" src=\"getImageFromCarDb?carId="+ str(carId) + "\" />")
 
     return file
 
@@ -210,4 +210,62 @@ def insert_cities_buttons(file):
 
     return file
     
+def insert_messages(self, file, sessions):
+    cookies = self.parse_cookies(self.headers["Cookie"])
+    if "sid" in cookies:
+        if (cookies["sid"] in sessions):
+            username = sessions[self.user][0]
+            user_id = get_user_id_by_username(username)[0][0]
+            
+            data = fetch_message_records_by_user_id(user_id)
+            html_string = "<hr>"
+            
+            for row in data:
+                message_id = row[0]
+                content = row[2]
+                status = row[3]
+                date = row[4]
+
+                html_string += "<br>"
+                if(status == "unread"):
+                    html_string += "<p style=\"border:2px solid rgb(80, 80, 80); background-color: rgb(220, 220, 220);\"> Nowa </p>"
+                    change_message_status_by_id(message_id, "read")
+                html_string += "<p>" + content + "</p> <p style=\"color:rgb(80, 80, 80); font-size:13px\">" + str(date)[:-10] +"</p><hr>"
+
+            file = file.replace("$messages", html_string)
+
+
+        else:
+            self.user = False
+
+    return file
+
+
+def check_for_unread_messages(user_id):
+    data = fetch_message_records_by_user_id(user_id)
+
+    for row in data:
+        if(row[3] == "unread"):
+            return True
+
+def create_htm_string_carlist(carname, productionyear, row, carId, price):
+    html_string =""
+    html_string += "<div class=\"center\" id=\"wrapper\">"
+    html_string += "<div id=\"left\" style=\"margin-left: 10%;\">" + "<img class=\"centered-and-cropped\" width=\"600px\" height=\"400px\" src=\"getImageFromCarDb?carId="+ str(carId) + "\" />" + "</div>"
+
+    html_string += "<div id=\"right\" style=\"margin-right: 13%;\">" + "<br><br><br>" + "<h1>" + carname + "</h1>" + "<p>" + productionyear + "</p>" + "<p>" + price + " /doba</p>"
+    html_string += "<br><br><br>"
+    html_string += "<a href=\"car_info?car_id=" + str(row[0])  + "\"><button class=\"button\">Wyświetl</button></a>" + "</div></div>" + "<br><br>"
+
+    return html_string
+
+def insert_reservation_form_info(file, carId, username, dates_to_exclude):
+    car = fetch_car_by_id(carId)[0]
+    userId = get_user_id_by_username(username)[0][0]
+    file = file.replace("$carname", car[1] + " - " + car[2])
+    file = file.replace("$carid", str(carId))
+    file = file.replace("$userid", str(userId))
+    file = file.replace("$excludedates", str(dates_to_exclude))
+
+    return file
                     

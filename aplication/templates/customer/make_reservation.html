@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="pl">
+    <head>
+        <meta charset="utf-8">
+        <title>Rezerwacja</title>
+        <link rel="stylesheet" type="text/css" href="../../static/css/styles.css"/>
+         
+        <link rel="stylesheet" href="../../static/css/jquery-ui.css">
+        <script src="../../static/js/jquery-3.6.0.js"></script>
+        <script src="../../static/js/jquery-ui.js"></script>
+
+        <script>
+        $( function() {
+            $( "#start" ).datepicker();
+            $( "#end" ).datepicker();
+          /*  start = $( "#start" )
+                .datepicker()
+                .on( "change", function() {
+                    end.datepicker( "option", "minDate", getDate( this ) );
+                }),
+                end = $( "#end" ).datepicker()
+            .on( "change", function() {
+                start.datepicker( "option", "maxDate", getDate( this ) );
+            });
+
+            function getDate( element ) {
+                var date;
+                try {
+                    date = $.datepicker.parseDate( dateFormat, element.value );
+                } catch( error ) {
+                    date = null;
+                }
+            
+                return date;
+                }*/
+        } );
+        </script>
+    
+    </head>
+
+
+    <body>
+
+        <div class="menu" id="wrapper">
+            <div id="left">
+                <a href="/oferta" method="post">
+                    <button class="button">Oferta</button></a>
+                <a href="/miasta" method="post">
+                    <button class="button">Miasta</button></a>
+                <a href="/oNas" method="post">
+                    <button class="button">O nas</button></a>
+            </div>
+
+            <div id="right">
+                $logowanie
+            </div> 
+        </div>
+
+        <div class = "padlogin">
+            <div class="center">
+                <h1>Rezerwacja: $carname</h1>
+                <form method="POST", action='/makeReservation' enctype="multipart/form-data">
+                    <input type="hidden" id="car_id" name="car_id" value="$carid" >
+                    <input type="hidden" id="user_id" name="user_id" value="$userid" >
+
+                    <label for="start">Dzień rozpoczęcia</label><br>
+                    <input type="text" id="start" name="start"><br><br>
+
+                    <label for="end">Dzień zakończenia</label><br>
+                    <input type="text" id="end" name="end"><br><br>
+
+                    <label for="name">Imię:</label><br>
+                    <input type="text" id="name" name="name"><br><br>
+
+                    <label for="surname">Nazwisko:</label><br>
+                    <input type="text" id="surname" name="surname"><br><br>
+
+                    <label for="phonenr">Numer telefonu:</label><br>
+                    <input type="text" id="phonenr" name="phonenr"><br><br>
+
+                    <label for="email">Email:</label><br>
+                    <input type="text" id="email" name="email"><br><br>
+
+                    <input type="submit" value="Rezerwuj">
+                </form> 
+
+                <br>
+                <a href="/car_info?car_id=$carid">
+                    <button class="button">Powrót</button>
+                </a>
+
+            </div>
+        </div>
+
+
+        <script>
+            
+            var array = $excludedates
+            $('#start').datepicker({
+                minDate: 0,
+                beforeShowDay: function(date){
+                    var string = jQuery.datepicker.formatDate('yy-mm-dd', date);
+                    return [$.inArray(string, array) == -1];
+                }
+            });
+            $('#end').datepicker({
+                minDate: 0,
+                beforeShowDay: function(date){
+                    var string = jQuery.datepicker.formatDate('yy-mm-dd', date);
+                    return [$.inArray(string, array) == -1];
+                }
+            });
+        </script>
+    </body>
+</html>

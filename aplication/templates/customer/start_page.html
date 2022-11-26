@@ -2,89 +2,9 @@
 <html lang="pl">
     <head>
         <meta charset="utf-8">
-        
         <title>Strona główna</title>
-        
-        <style>
-            body{
-                font-family: arial, sans-serif;
-            }
+        <link rel="stylesheet" type="text/css" href="../../static/css/styles.css"/>
 
-            .center {
-                margin: auto;
-                border: 3px solid #bebebe;
-                padding: 10px;
-                text-align: center;
-            }
-
-            .pad{
-                padding-left: 5%;
-                padding-right: 5%;
-            }
-
-            .menu{
-                text-align: right;
-                background-color: #f1f1f1;
-            }
-
-            .button {
-                border: none;
-                color: white;
-                padding: 15px 32px;
-                text-align: center;
-                text-decoration: none;
-                display: inline-block;
-                font-size: 16px;
-                margin: 4px 2px;
-                transition-duration: 0.4s;
-                cursor: pointer;
-                background-color: #f1f1f1; 
-                color: black; 
-                border: 0px solid rgb(80, 80, 80);
-                }
-                
-            .button:hover {
-                background-color: rgb(80, 80, 80);
-                color: white;
-            }
-
-            .button-big {
-                border: none;
-                color: white;
-                padding: 20px 40px;
-                text-align: center;
-                text-decoration: none;
-                display: inline-block;
-                font-size: 27px;
-                margin: 4px 2px;
-                transition-duration: 0.4s;
-                cursor: pointer;
-                background-color: #f1f1f1; 
-                color: black; 
-                }
-                
-            .button-big:hover {
-                background-color: rgb(80, 80, 80);
-                color: white;
-            }
-
-
-            #wrapper {
-                overflow: hidden;
-            }
-            #left {
-                float:left;
-            }
-            #right {
-                float: right;
-            }
-
-            .siteheader{
-                text-align: center;
-                font-size:29px
-
-            }
-        </style>
     </head>
 
 
@@ -98,13 +18,12 @@
                     <button class="button">Miasta</button></a>
                 <a href="/oNas" method="post">
                     <button class="button">O nas</button></a>
+
             </div>
 
             <div id="right">
                 $logowanie
-            </div>
-            
-            
+            </div> 
         </div>
         <br>
         <div class="siteheader">
@@ -122,6 +41,6 @@
         </div>
 
 
-        
+        <script src="/static/js/change_colour.js"></script>
     </body>
 </html>

@@ -1,0 +1,253 @@
+body{
+    font-family: arial, sans-serif;
+}
+
+.norepeat{
+    background-position: center bottom;
+    background-repeat: no-repeat;
+}
+
+.center {
+    margin: auto;
+    border: 3px solid #bebebe;
+    padding: 10px;
+    text-align: center;
+}
+
+.centercarinfo{
+    margin: auto;
+    border: 3px solid #bebebe;
+    padding: 10px;
+    padding-bottom: 5%;
+    text-align: center;
+}
+
+.pad10{
+    padding-left: 10%;
+    padding-right: 10%;
+}
+
+.pad5{
+    padding-left: 5%;
+    padding-right: 5%;
+}
+
+.padlogin{
+    padding-top: 7%;
+    padding-left: 30%;
+    padding-right: 30%;
+}
+
+.padmessages{
+    padding-top: 5%;
+    padding-left: 10%;
+    padding-right: 10%;
+}
+
+.padeditcar{
+    padding-top: 5%;
+    padding-bottom: 5%;
+    padding-left: 30%;
+    padding-right: 30%;
+}
+
+.menu{
+    text-align: right;
+    background-color: #f1f1f1;
+
+    position: -webkit-sticky; /* Safari */
+    position: sticky;
+    top: 0;
+}
+
+.button {
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    transition-duration: 0.4s;
+    cursor: pointer;
+    background-color: #f1f1f1; 
+    color: black; 
+    border: 0px solid rgb(80, 80, 80);
+    }
+    
+.button:hover {
+    background-color: rgb(80, 80, 80);
+    color: white;
+}
+
+.button_new_mes {
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    transition-duration: 0.4s;
+    cursor: pointer;
+    background-color: #f1f1f1; 
+    color: black; 
+    border: 2px solid rgb(255, 106, 106);
+    }
+    
+.button_new_mes:hover {
+    background-color: rgb(80, 80, 80);
+    color: white;
+}
+
+.button-big {
+    border: none;
+    color: white;
+    padding: 20px 40px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 27px;
+    margin: 4px 2px;
+    transition-duration: 0.4s;
+    cursor: pointer;
+    background-color: #f1f1f1; 
+    color: black; 
+    }
+    
+.button-big:hover {
+    background-color: rgb(80, 80, 80);
+    color: white;
+}
+
+.buttonwhite {
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    transition-duration: 0.4s;
+    cursor: pointer;
+    background-color: white; 
+    color: black; 
+    border: 2px solid rgb(80, 80, 80);
+    }
+    
+.buttonwhite:hover {
+    background-color: rgb(80, 80, 80);
+}
+
+/*the container must be positioned relative:*/
+.autocomplete {
+    position: relative;
+    display: inline-block;
+}
+
+input {
+    border: 1px solid transparent;
+    background-color: #f1f1f1;
+    padding: 10px;
+    font-size: 16px;
+}
+
+input[type=text] {
+    background-color: #f1f1f1;
+    width: 30%;
+}
+
+input[type=password] {
+    background-color: #f1f1f1;
+    width: 30%;
+}
+
+
+select{
+    border: 1px solid transparent;
+    background-color: #f1f1f1;
+    padding: 10px;
+    font-size: 16px;
+}
+
+option{
+    border: 1px solid transparent;
+    background-color: #f1f1f1;
+    padding: 10px;
+    font-size: 16px;
+}
+
+input[type=submit] {
+    background-color: rgb(124, 124, 124);
+    color: #fff;
+    transition-duration: 0.4s;
+    cursor: pointer;
+    border: 2px solid rgb(80, 80, 80);
+}
+
+input[type=submit]:hover {
+    background-color: rgb(80, 80, 80);
+    border: 2px solid rgb(0, 0, 0);
+}
+
+.autocomplete-items {
+    position: absolute;
+    border: 1px solid #d4d4d4;
+    border-bottom: none;
+    border-top: none;
+    z-index: 99;
+    /*position the autocomplete items to be the same width as the container:*/
+    top: 100%;
+    left: 0;
+    right: 0;
+}
+
+.autocomplete-items div {
+    padding: 10px;
+    cursor: pointer;
+    background-color: #fff; 
+    border-bottom: 1px solid #d4d4d4; 
+}
+
+/*when hovering an item:*/
+.autocomplete-items div:hover {
+    background-color: #e9e9e9; 
+}
+
+/*when navigating through the items using the arrow keys:*/
+.autocomplete-active {
+    background-color: rgb(80, 80, 80) !important; 
+    color: #ffffff; 
+}
+
+#wrapper {
+    overflow: hidden;
+}
+#left {
+    float:left;
+}
+#right {
+    float: right;
+}
+
+img {
+    border: 5px solid #f1f1f1;
+}
+
+.centered-and-cropped { object-fit: cover }
+
+.siteheader{
+    text-align: center;
+    font-size:29px
+
+}
+
+.infotable {
+    margin-left: auto; 
+    margin-right: 20%;
+    margin-top: 5%;
+    background-color: #ecececef;
+}
