@@ -582,6 +582,23 @@ class MyServer(BaseHTTPRequestHandler):
 
 
 
+
+#websocket
+async def send_message(websocket):
+    while True:
+        message = datetime.datetime.utcnow().isoformat() + "Z"
+        await websocket.send(message)
+        #await asyncio.sleep(random.random() * 2 + 1)
+
+async def websocket_server():
+    async with websockets.serve(send_message, "localhost", 5678):
+        print("started websocket server")
+        await asyncio.Future()  # run forever
+
+def start_websocket_server():
+    asyncio.run(websocket_server())
+
+
 #http server
 def serve_on_port(port):
     print(f"Server started http://{HOST}:{port}")
@@ -600,7 +617,11 @@ def start_app():
     create_reservation_table()
     create_administrator_table()
     create_messages_table()
-    
+
+    #Thread(target=serve_on_port, args=[8080]).start()
+    #Thread(target=serve_on_port, args=[8080]).start()
+    #start_websocket_server()
+
     serve_on_port(8080)
 
 
