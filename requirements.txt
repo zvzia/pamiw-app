@@ -1,3 +1,7 @@
 
 matplotlib
 bcrypt
+websockets
+asyncio
+python-barcode
+reportlab
