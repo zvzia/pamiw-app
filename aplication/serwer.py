@@ -6,9 +6,6 @@ from http.client import HTTP_PORT
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from random import randint
 import datetime
-import asyncio
-import websockets
-import threading 
 
 from reportlab.pdfgen import canvas
 from reportlab.pdfbase import pdfmetrics
@@ -18,7 +15,6 @@ from barcode import EAN13
 from barcode.writer import ImageWriter
 import uuid
 
-from threading import Thread
 from socketserver import ThreadingMixIn
 
 from matplotlib.style import use
