@@ -229,7 +229,7 @@ class MyServer(BaseHTTPRequestHandler):
             self.wfile.write(bytes(file, 'utf-8'))
 
 
-        if self.path == '/ocochodzi':
+        if self.path == '/githubauth':
             random_state = generate_state()
             params = {
                 "client_id": CLIENT_ID,
@@ -247,26 +247,35 @@ class MyServer(BaseHTTPRequestHandler):
             self.end_headers()
 
         if self.path[:9] == '/callback':
-
+            file = read_html_template('./templates/customer/info.html')
             code = (re.search('code=(.*)&state=', self.path)).group(1)
             state = self.path.split("&state=",1)[1]
 
             if ("state" or " state" in cookies):
                 if ("state" in cookies and state != cookies["state"]):
+                    file = file.replace("$info", "State does not match. Possible authorization_code injection attempt")
+                    file = file.replace("$href", "login_page")
+                    
                     self.send_response(400)
                     self.send_header('Content-type', 'text/html; charset=utf-8')
                     self.end_headers()
-                    self.wfile.write(bytes("State does not match. Possible authorization_code injection attempt", 'utf-8'))
+                    self.wfile.write(bytes(file, 'utf-8'))
                 if (" state" in cookies and state != cookies[" state"]):
+                    file = file.replace("$info", "State does not match. Possible authorization_code injection attempt")
+                    file = file.replace("$href", "login_page")
+                    
                     self.send_response(400)
                     self.send_header('Content-type', 'text/html; charset=utf-8')
                     self.end_headers()
-                    self.wfile.write(bytes("State does not match. Possible authorization_code injection attempt", 'utf-8'))
+                    self.wfile.write(bytes(file, 'utf-8'))
             else:
+                file = file.replace("$info", "Błąd autoryzacji")
+                file = file.replace("$href", "login_page")
+
                 self.send_response(400)
                 self.send_header('Content-type', 'text/html; charset=utf-8')
                 self.end_headers()
-                self.wfile.write(bytes("Błąd autoryzacji", 'utf-8'))
+                self.wfile.write(bytes(file, 'utf-8'))
 
             #request token
             params = {
@@ -286,13 +295,13 @@ class MyServer(BaseHTTPRequestHandler):
 
             userData = json.loads(respUserData.text)
             username = userData["login"]
-            print(username)
             
-
+            file = file.replace("$info", "Zalogowano przez GitHub OAuth Server")
+            file = file.replace("$href", "")
             self.send_response(200, "OK")
             self.send_header('Content-type', 'text/html; charset=utf-8')
             self.end_headers()
-            self.wfile.write(bytes("Authorized in GitHub OAuth Server", 'utf-8'))
+            self.wfile.write(bytes(file, 'utf-8'))
         
 
 
