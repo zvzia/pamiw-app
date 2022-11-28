@@ -6,18 +6,11 @@ from http.client import HTTP_PORT
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from random import randint
 import datetime
-
-from reportlab.pdfgen import canvas
-from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.ttfonts import TTFont
-from reportlab.lib.pagesizes import A4
-from barcode import EAN13
-from barcode.writer import ImageWriter
 import uuid
+import json
 
+from requests import Request, post, get
 from socketserver import ThreadingMixIn
-
-from matplotlib.style import use
 
 from database.user_db import *
 from database.reservation_db import *
@@ -26,51 +19,16 @@ from database.administrator_db import *
 from database.messages_db import *
 from login_service import *
 from edit_templates import *
+from server_service import *
 #from web_sockets import *
 
 HOST = "0.0.0.0"
 PORT = 8080
 SESSIONS = {}
 
-def read_html_template(path):
-    try:
-        with open(path, encoding='utf-8') as f:
-            file = f.read()
-    except Exception as e:
-        file = e
-    return file
-
-def read_bytes_from_file(path):
-
-    file = open(path,"rb")
-    data = file.read()
-    file.close()
-    
-    return data
-
-def create_receipt(self, reservation_nr, name, surname, car_name, start, end):
-    my_code = EAN13(reservation_nr, writer=ImageWriter())
-    my_code.save("tmp/ean")
-
-    pdfmetrics.registerFont(TTFont('Arial', 'arial.ttf'))
-    my_canvas = canvas.Canvas("tmp/Potwierdzenie.pdf", pagesize=A4)
-    my_canvas.setFont("Arial", 14)
-    my_canvas.drawString(100, 750, "Numer rezerwacji: " + reservation_nr)
-    my_canvas.drawString(100, 730, "Imię i Nazwisko: " + name + " " + surname)
-    my_canvas.drawString(100, 710, "Samochód: " + car_name)
-    my_canvas.drawString(100, 690, "Od: " + start)
-    my_canvas.drawString(100, 670, "Do: " + end)
-    my_canvas.drawImage("tmp/ean.png", 350, 650, 200, 107)
-    my_canvas.save()
-
-    file = read_bytes_from_file("tmp/Potwierdzenie.pdf")
-    self.send_response(200, "OK")
-    self.send_header('Content-type', 'application/pdf')
-    self.end_headers()
-    self.wfile.write(file)
-
-    os.remove("tmp/ean.png")
-    os.remove("tmp/Potwierdzenie.pdf")
+CLIENT_ID = os.getenv("CLIENT_ID")
+CLIENT_SECRET = os.getenv("CLIENT_SECRET")
+dotenv.load_dotenv(verbose=True)
 
 
 class ThreadingHTTPServer(ThreadingMixIn, HTTPServer):
@@ -83,16 +41,7 @@ class MyServer(BaseHTTPRequestHandler):
         if "sid" in cookies:
             if (cookies["sid"] in SESSIONS):
                 self.user = cookies["sid"]
-
-        if self.path == '/test':
-            self.path = './templates/test.php'
-            file = read_html_template(self.path)
-
-                
-            self.send_response(200, "OK")
-            self.send_header('Content-type', 'text/html; charset=utf-8')
-            self.end_headers()
-            self.wfile.write(bytes(file, 'utf-8'))  
+ 
 
         if self.path == '/':
             self.path = './templates/customer/start_page.html'
@@ -279,7 +228,74 @@ class MyServer(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(bytes(file, 'utf-8'))
 
+
+        if self.path == '/ocochodzi':
+            random_state = generate_state()
+            params = {
+                "client_id": CLIENT_ID,
+                "redirect_uri": "http://localhost:8080/callback",
+                "scope": "repo user",
+                "state": random_state
+            }
+
+            authorize = Request("GET", "https://github.com/login/oauth/authorize", params=params).prepare()
+
+            cookie = "state={}".format(random_state)
+            self.send_response(302)
+            self.send_header('Location',authorize.url)
+            self.send_header('Set-Cookie', cookie)
+            self.end_headers()
+
+        if self.path[:9] == '/callback':
+
+            code = (re.search('code=(.*)&state=', self.path)).group(1)
+            state = self.path.split("&state=",1)[1]
+
+            if ("state" or " state" in cookies):
+                if ("state" in cookies and state != cookies["state"]):
+                    self.send_response(400)
+                    self.send_header('Content-type', 'text/html; charset=utf-8')
+                    self.end_headers()
+                    self.wfile.write(bytes("State does not match. Possible authorization_code injection attempt", 'utf-8'))
+                if (" state" in cookies and state != cookies[" state"]):
+                    self.send_response(400)
+                    self.send_header('Content-type', 'text/html; charset=utf-8')
+                    self.end_headers()
+                    self.wfile.write(bytes("State does not match. Possible authorization_code injection attempt", 'utf-8'))
+            else:
+                self.send_response(400)
+                self.send_header('Content-type', 'text/html; charset=utf-8')
+                self.end_headers()
+                self.wfile.write(bytes("Błąd autoryzacji", 'utf-8'))
+
+            #request token
+            params = {
+                "client_id": CLIENT_ID,
+                "client_secret": CLIENT_SECRET,
+                "code": code
+            }
+            resp = post("https://github.com/login/oauth/access_token", params=params)
+            access_token = resp.text
+
+            #request user data
+            param = 'token ' + access_token[13:-36]
+            url = 'https://api.github.com/user'
+            headers = {"Authorization": param}
+
+            respUserData = get(url=url, headers=headers)
+
+            userData = json.loads(respUserData.text)
+            username = userData["login"]
+            print(username)
+            
+
+            self.send_response(200, "OK")
+            self.send_header('Content-type', 'text/html; charset=utf-8')
+            self.end_headers()
+            self.wfile.write(bytes("Authorized in GitHub OAuth Server", 'utf-8'))
         
+
+
 
         #admin -------------------------------------------------
 
@@ -326,6 +342,8 @@ class MyServer(BaseHTTPRequestHandler):
             self.send_header('Content-type', 'text/html; charset=utf-8')
             self.end_headers()
             self.wfile.write(bytes(file, 'utf-8'))
+
+        
 
 
 
@@ -559,7 +577,7 @@ class MyServer(BaseHTTPRequestHandler):
                 
             
 
-
+#------------------------------------------------------------------------------
 
     def generate_sid(self):
         return "".join(str(randint(1,9)) for _ in range(100))
