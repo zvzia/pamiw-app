@@ -109,7 +109,7 @@ def insert_login_button(self, file, sessions):
         if (cookies["sid"] in sessions):
             self.user = cookies["sid"]
             username = sessions[self.user][0]
-            user_id = get_user_id_by_username(username)[0][0]
+            user_id = get_user_id_by_username(username)
             unread_messages = check_for_unread_messages(user_id)
 
             if(unread_messages == True):
@@ -215,7 +215,7 @@ def insert_messages(self, file, sessions):
     if "sid" in cookies:
         if (cookies["sid"] in sessions):
             username = sessions[self.user][0]
-            user_id = get_user_id_by_username(username)[0][0]
+            user_id = get_user_id_by_username(username)
             
             data = fetch_message_records_by_user_id(user_id)
             html_string = "<hr>"
@@ -261,11 +261,22 @@ def create_htm_string_carlist(carname, productionyear, row, carId, price):
 
 def insert_reservation_form_info(file, carId, username, dates_to_exclude):
     car = fetch_car_by_id(carId)[0]
-    userId = get_user_id_by_username(username)[0][0]
+    userId = get_user_id_by_username(username)
     file = file.replace("$carname", car[1] + " - " + car[2])
     file = file.replace("$carid", str(carId))
     file = file.replace("$userid", str(userId))
     file = file.replace("$excludedates", str(dates_to_exclude))
 
     return file
+
+def insert_dataedit_button(file, username):
+    userId = get_user_id_by_username(username)
+    role = get_role_by_userid(userId)
+    if role == "client":
+        file = file.replace("$dataeditbutton", "<a href=\"/data_edit\" method=\"post\"><button class=\"button\">Edytuj moje dane</button></a>")
+    else:
+        file = file.replace("$dataeditbutton", "")
+
+    return file
+
                     

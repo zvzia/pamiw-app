@@ -38,6 +38,7 @@ class MyServer(BaseHTTPRequestHandler):
 
     def do_GET(self):
         cookies = self.parse_cookies(self.headers["Cookie"])
+
         if "sid" in cookies:
             if (cookies["sid"] in SESSIONS):
                 self.user = cookies["sid"]
@@ -97,6 +98,8 @@ class MyServer(BaseHTTPRequestHandler):
         if self.path == '/profile_page':
             self.path = './templates/customer/profile_page.html'
             file = read_html_template(self.path)
+            username = SESSIONS[self.user][0]
+            file = insert_dataedit_button(file, username)
             file = insert_login_button(self, file, SESSIONS)
             self.send_response(200, "OK")
             self.send_header('Content-type', 'text/html; charset=utf-8')
@@ -294,12 +297,19 @@ class MyServer(BaseHTTPRequestHandler):
             respUserData = get(url=url, headers=headers)
 
             userData = json.loads(respUserData.text)
-            username = userData["login"]
+            username = "ghUser-" + userData["login"]
+
+            add_gh_user(username)
+            sid = self.generate_sid()
+            self.cookie = "sid={}".format(sid)
+            SESSIONS[sid] = [username]
             
             file = file.replace("$info", "Zalogowano przez GitHub OAuth Server")
             file = file.replace("$href", "")
             self.send_response(200, "OK")
             self.send_header('Content-type', 'text/html; charset=utf-8')
+            if hasattr(self, 'cookie'):
+                self.send_header('Set-Cookie', self.cookie)
             self.end_headers()
             self.wfile.write(bytes(file, 'utf-8'))
         
@@ -418,7 +428,7 @@ class MyServer(BaseHTTPRequestHandler):
                     records = fetch_user_passwrd_by_username(username)
                     if len(records) <= 0 :
                         #dodawanie rekordu
-                        insert_user_record(username, hash_password(password), "", "", "")
+                        insert_user_record(username, hash_password(password), "", "", "", "client")
                         file = file.replace("$info", "Zarejestrowano")
                         file = file.replace("$href", "")
                     else:
@@ -529,8 +539,7 @@ class MyServer(BaseHTTPRequestHandler):
 
                 
                 if password == passwordRetype:
-                    delete_user_record_by_username(username)
-                    insert_user_record(username, hash_password(password), name, surname, email)
+                    update_user_record(username, hash_password(password), name, surname, email)
                     file = file.replace("$info", "Dane zostały zmienione")
                     file = file.replace("$href", "data_edit")
 
@@ -554,7 +563,7 @@ class MyServer(BaseHTTPRequestHandler):
 
                 if 0 == 0:
                     #TODO sprawdzanie odbiorcy
-                    user_id = get_user_id_by_username(username)[0][0]
+                    user_id = get_user_id_by_username(username)
                     insert_message_record(user_id, content, "unread", currentDateTime)
 
 
@@ -592,7 +601,7 @@ class MyServer(BaseHTTPRequestHandler):
         return "".join(str(randint(1,9)) for _ in range(100))
 
     def parse_cookies(self, cookie_list):
-        return dict(((c.split("=")) for c in cookie_list.split(";"))) if cookie_list else {}
+        return dict(((c.split("=")) for c in cookie_list.split("; "))) if cookie_list else {}
     
     def logout(self):
         if not self.user:
