@@ -97,10 +97,15 @@ class MyServer(BaseHTTPRequestHandler):
 
         if self.path == '/profile_page':
             self.path = './templates/customer/profile_page.html'
-            file = read_html_template(self.path)
-            username = SESSIONS[self.user][0]
-            file = insert_dataedit_button(file, username)
-            file = insert_login_button(self, file, SESSIONS)
+
+            if(hasattr(self, "user")):
+                file = read_html_template(self.path)
+                username = SESSIONS[self.user][0]
+                file = insert_dataedit_button(file, username)
+                file = insert_login_button(self, file, SESSIONS)
+            else:
+                file = "Musisz się zalogować"
+            
             self.send_response(200, "OK")
             self.send_header('Content-type', 'text/html; charset=utf-8')
             self.end_headers()
@@ -108,9 +113,13 @@ class MyServer(BaseHTTPRequestHandler):
 
         if self.path == '/data_edit':
             self.path = './templates/customer/data_edit.html'
-            file = read_html_template(self.path)
-            username = SESSIONS[self.user][0]
-            file = file.replace("$username", username)
+            if(hasattr(self, "user")):
+                file = read_html_template(self.path)
+                username = SESSIONS[self.user][0]
+                file = file.replace("$username", username)
+            else:
+                file = "Musisz się zalogować"
+
             self.send_response(200, "OK")
             self.send_header('Content-type', 'text/html; charset=utf-8')
             self.end_headers()
@@ -206,8 +215,14 @@ class MyServer(BaseHTTPRequestHandler):
         
         if self.path == '/messages':
             self.path = './templates/customer/messages.html'
-            file = read_html_template(self.path)
-            file = insert_messages(self, file, SESSIONS)
+
+            if(hasattr(self, "user")):
+                file = read_html_template(self.path)
+                file = insert_messages(self, file, SESSIONS)
+            else:
+                file = "Musisz się zalogować"
+
+            
             self.send_response(200, "OK")
             self.send_header('Content-type', 'text/html; charset=utf-8')
             self.end_headers()
@@ -319,44 +334,92 @@ class MyServer(BaseHTTPRequestHandler):
         #admin -------------------------------------------------
 
         if self.path == '/admin':
-            self.path = './templates/admin/admin_start_page.html'
-            file = read_html_template(self.path)
+            verification = check_if_admin(self, SESSIONS)
+
+            if verification == True:
+                self.path = './templates/admin/admin_start_page.html'
+                file = read_html_template(self.path)
+            else:
+                self.path = './templates/customer/info.html'
+                file = read_html_template(self.path)
+                file = file.replace("$info", "Nie jesteś adminem")
+                file = file.replace("$href", "")
+
             self.send_response(200, "OK")
             self.send_header('Content-type', 'text/html; charset=utf-8')
             self.end_headers()
             self.wfile.write(bytes(file, 'utf-8'))
 
         if self.path == '/admin/cars':
-            self.path = './templates/admin/admin_car_list.html'
-            file = read_html_template(self.path)
-            file = insert_car_table_for_admin(file)
+            verification = check_if_admin(self, SESSIONS)
+
+            if verification == True:
+                self.path = './templates/admin/admin_car_list.html'
+                file = read_html_template(self.path)
+                file = insert_car_table_for_admin(file)
+
+            else:
+                self.path = './templates/customer/info.html'
+                file = read_html_template(self.path)
+                file = file.replace("$info", "Nie jesteś adminem")
+                file = file.replace("$href", "")
+
             self.send_response(200, "OK")
             self.send_header('Content-type', 'text/html; charset=utf-8')
             self.end_headers()
             self.wfile.write(bytes(file, 'utf-8'))
 
         if self.path[:23] == '/admin/edit_car?car_id=':
-            car_id = int(self.path[23:])
-            self.path = './templates/admin/add_car.html'
-            file = read_html_template(self.path)
-            file = insert_edit_car_info(file, car_id)
+            
+            verification = check_if_admin(self, SESSIONS)
+
+            if verification == True:
+                car_id = int(self.path[23:])
+                self.path = './templates/admin/add_car.html'
+                file = read_html_template(self.path)
+                file = insert_edit_car_info(file, car_id)
+            else:
+                self.path = './templates/customer/info.html'
+                file = read_html_template(self.path)
+                file = file.replace("$info", "Nie jesteś adminem")
+                file = file.replace("$href", "")
+
             self.send_response(200, "OK")
             self.send_header('Content-type', 'text/html; charset=utf-8')
             self.end_headers()
             self.wfile.write(bytes(file, 'utf-8'))
 
         if self.path[:23] == '/admin/add_car':
-            self.path = './templates/admin/add_car.html'
-            file = read_html_template(self.path)
-            file = insert_empty_info(file)
+            verification = check_if_admin(self, SESSIONS)
+
+            if verification == True:
+                self.path = './templates/admin/add_car.html'
+                file = read_html_template(self.path)
+                file = insert_empty_info(file)
+            else:
+                self.path = './templates/customer/info.html'
+                file = read_html_template(self.path)
+                file = file.replace("$info", "Nie jesteś adminem")
+                file = file.replace("$href", "")
+
+            
             self.send_response(200, "OK")
             self.send_header('Content-type', 'text/html; charset=utf-8')
             self.end_headers()
             self.wfile.write(bytes(file, 'utf-8'))
 
         if self.path == '/admin/send_message':
-            self.path = './templates/admin/send_message.html'
-            file = read_html_template(self.path)
+            verification = check_if_admin(self, SESSIONS)
+
+            if verification == True:
+                self.path = './templates/admin/send_message.html'
+                file = read_html_template(self.path)
+            else:
+                self.path = './templates/customer/info.html'
+                file = read_html_template(self.path)
+                file = file.replace("$info", "Nie jesteś adminem")
+                file = file.replace("$href", "")
+
             self.send_response(200, "OK")
             self.send_header('Content-type', 'text/html; charset=utf-8')
             self.end_headers()
@@ -394,8 +457,16 @@ class MyServer(BaseHTTPRequestHandler):
                 sid = self.generate_sid()
                 self.cookie = "sid={}".format(sid)
                 SESSIONS[sid] = [username]
-                file = file.replace("$info", "Zalogowano")
-                file = file.replace("$href", "")
+
+                userId = get_user_id_by_username(username)
+                role = get_role_by_userid(userId)
+
+                if role == "admin":
+                    file = file.replace("$info", "Zalogowano jako admin <br><br> <a href=\"/\"><button class=\"button\">Wyświetl strone jaki klient</button></a><a href=\"/admin\"><button class=\"button\">Wyświetl strone admina</button></a>")
+                    file = file.replace("$href", "")
+                else:
+                    file = file.replace("$info", "Zalogowano")
+                    file = file.replace("$href", "")
 
             else:
                 file = file.replace("$info", "Niepoprawne dane")

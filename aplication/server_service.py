@@ -6,6 +6,7 @@ from reportlab.lib.pagesizes import A4
 from barcode import EAN13
 from barcode.writer import ImageWriter
 import dotenv, random, string, os
+from database.user_db import *
 
 
 def read_html_template(path):
@@ -52,3 +53,16 @@ def generate_state(length=30):
   char = string.ascii_letters + string.digits
   rand = random.SystemRandom()
   return ''.join(rand.choice(char) for _ in range(length))
+
+def check_if_admin(self, sessions):
+    if hasattr(self, 'user'):
+        username = sessions[self.user][0]
+        userId = get_user_id_by_username(username)
+        role = get_role_by_userid(userId)
+    else:
+        return False
+
+    if role == "admin":
+        return True
+    else:
+        return False
