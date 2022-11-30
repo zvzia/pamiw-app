@@ -4,8 +4,6 @@ from datetime import date, timedelta
 
 DB_NAME = "database/car_rental.db"  
 
-#connection = connect(DB_NAME, check_same_thread=False)
-#cursor = connection.cursor()
 def connect_to_db():
     connection = connect(DB_NAME, check_same_thread=False)
     cursor = connection.cursor()
@@ -13,7 +11,6 @@ def connect_to_db():
 
 def create_reservation_table():
     connection, cursor = connect_to_db()
-    # create table user inside database if not exists
     table_script = '''CREATE TABLE IF NOT EXISTS Reservation(
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     reservation_nr INTEGER NOT NULL UNIQUE,
@@ -21,6 +18,10 @@ def create_reservation_table():
                     end_time TEXT,
                     car_id INTEGER NOT NULL,
                     user_id INTEGER NOT NULL,
+                    name VARCHAR(100) NOT NULL,
+                    surname VARCHAR(100) NOT NULL,
+                    email VARCHAR(150) NOT NULL,
+                    phonenr VARCHAR(13) NOT NULL,
                     FOREIGN KEY (car_id) REFERENCES Car(id),
                     FOREIGN KEY (user_id) REFERENCES User(id)
                 );
@@ -29,10 +30,10 @@ def create_reservation_table():
     connection.commit()
     connection.close()
 
-def insert_reservation_record(reservation_nr, start_time, end_time, car_id, user_id):
+def insert_reservation_record(reservation_nr, start_time, end_time, car_id, user_id, name, surname, email, phonenr):
     connection, cursor = connect_to_db()
-    cursor.execute("INSERT INTO Reservation(reservation_nr, start_time, end_time, car_id, user_id) VALUES(?, ?, ?, ?, ?)",
-                   (reservation_nr, start_time, end_time, car_id, user_id))
+    cursor.execute("INSERT INTO Reservation(reservation_nr, start_time, end_time, car_id, user_id, name, surname, email, phonenr) VALUES(?, ?, ?, ?, ?, ?, ?, ?,?)",
+                   (reservation_nr, start_time, end_time, car_id, user_id, name, surname, email, phonenr))
     connection.commit()
     connection.close()
 

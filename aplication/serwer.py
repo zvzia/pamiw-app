@@ -15,12 +15,11 @@ from socketserver import ThreadingMixIn
 from database.user_db import *
 from database.reservation_db import *
 from database.car_db import *
-from database.administrator_db import *
 from database.messages_db import *
 from login_service import *
 from edit_templates import *
 from server_service import *
-#from web_sockets import *
+
 
 HOST = "0.0.0.0"
 PORT = 8080
@@ -102,6 +101,7 @@ class MyServer(BaseHTTPRequestHandler):
                 file = read_html_template(self.path)
                 username = SESSIONS[self.user][0]
                 file = insert_dataedit_button(file, username)
+                file = insert_admin_page_button(file, username)
                 file = insert_login_button(self, file, SESSIONS)
             else:
                 file = "Musisz się zalogować"
@@ -425,7 +425,24 @@ class MyServer(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(bytes(file, 'utf-8'))
 
-        
+        if self.path == '/admin/reservations':
+            verification = check_if_admin(self, SESSIONS)
+
+            if verification == True:
+                self.path = './templates/admin/admin_reservations.html'
+                file = read_html_template(self.path)
+                file = insert_reservation_table_for_admin(file)
+
+            else:
+                self.path = './templates/customer/info.html'
+                file = read_html_template(self.path)
+                file = file.replace("$info", "Nie jesteś adminem")
+                file = file.replace("$href", "")
+
+            self.send_response(200, "OK")
+            self.send_header('Content-type', 'text/html; charset=utf-8')
+            self.end_headers()
+            self.wfile.write(bytes(file, 'utf-8'))
 
 
 
@@ -654,6 +671,8 @@ class MyServer(BaseHTTPRequestHandler):
                 end = fields.get("end")[0]
                 name = fields.get("name")[0]
                 surname = fields.get("surname")[0]
+                phonenr = fields.get("phonenr")[0]
+                email = fields.get("email")[0]
 
                 car = fetch_car_by_id(car_id)
 
@@ -661,7 +680,7 @@ class MyServer(BaseHTTPRequestHandler):
                 reservation_nr = str(uuid.uuid4().int)[:13]
                 
                 create_receipt(self, reservation_nr, name, surname, car_name, start, end)
-                insert_reservation_record(reservation_nr ,start, end, car_id, user_id)
+                insert_reservation_record(reservation_nr ,start, end, car_id, user_id, name, surname, email, phonenr)
 
                 
             
@@ -701,7 +720,6 @@ def start_app():
     create_user_table()
     create_car_table()
     create_reservation_table()
-    create_administrator_table()
     create_messages_table()
     
     serve_on_port(8080)

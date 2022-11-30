@@ -1,6 +1,7 @@
 from database.car_db import *
 from database.user_db import *
 from database.messages_db import *
+from database.reservation_db import *
 
 def insert_car_table_for_admin(file):
     data = fetch_car_records()
@@ -13,6 +14,30 @@ def insert_car_table_for_admin(file):
         html_string +="</tr>"
     
     result = file.replace("$cartable", html_string)
+    return result
+
+def insert_reservation_table_for_admin(file):
+    data = fetch_reservation_records()
+    html_string =""
+    for row in data:
+        html_string +="<tr>"
+
+        record = ['']*8
+        record[0] = str(row[1])
+        record[1] = str(row[2])
+        record[2] = str(row[3])
+        car = fetch_car_by_id(row[4])[0]
+        record[3] = str(car[1] + " - " + car[2])
+        record[4] = str(row[6])
+        record[5] = str(row[7])
+        record[6] = str(row[8])
+        record[7] = str(row[9])
+
+        for col in record:
+            html_string += "<td>" + col + "</td>"
+        html_string +="</tr>"
+    
+    result = file.replace("$reservationtable", html_string)
     return result
 
 def insert_edit_car_info(file, car_id):
@@ -276,6 +301,16 @@ def insert_dataedit_button(file, username):
         file = file.replace("$dataeditbutton", "<a href=\"/data_edit\" method=\"post\"><button class=\"button\">Edytuj moje dane</button></a>")
     else:
         file = file.replace("$dataeditbutton", "")
+
+    return file
+
+def insert_admin_page_button(file, username):
+    userId = get_user_id_by_username(username)
+    role = get_role_by_userid(userId)
+    if role == "admin":
+        file = file.replace("$adminpage", "<a href=\"/admin\"><button class=\"button\">Strona administratora</button></a>")
+    else:
+        file = file.replace("$adminpage", "")
 
     return file
 
