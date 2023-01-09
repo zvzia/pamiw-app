@@ -59,6 +59,13 @@ def add_gh_user(username):
         connection.close()
 
 
+def get_user_info_by_id(id):
+    connection, cursor = connect_to_db()
+    data = cursor.execute("SELECT * FROM User WHERE id = ?", [id])
+    record = cursor.fetchone()
+    connection.close()
+    return record
+
 
 def fetch_user_records():
     connection, cursor = connect_to_db()

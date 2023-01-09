@@ -9,13 +9,7 @@
         <script src="../../static/js/jquery-3.6.0.js"></script>
         <script src="../../static/js/jquery-ui.js"></script>
 
-        <script>
-        $( function() {
-            $( "#start" ).datepicker();
-            $( "#end" ).datepicker();
 
-        } );
-        </script>
     
     </head>
 
@@ -75,22 +69,39 @@
 
 
         <script>
-            
             var array = $excludedates
-            $('#start').datepicker({
-                minDate: 0,
-                beforeShowDay: function(date){
-                    var string = jQuery.datepicker.formatDate('yy-mm-dd', date);
-                    return [$.inArray(string, array) == -1];
+
+            $(document).ready(function() {
+
+                $(function() {
+                    $("#start").datepicker({
+                        minDate: 0,
+                        beforeShowDay: function(date){
+                        var string = jQuery.datepicker.formatDate('yy-mm-dd', date);
+                        return [$.inArray(string, array) == -1];
                 }
-            });
-            $('#end').datepicker({
-                minDate: 0,
-                beforeShowDay: function(date){
-                    var string = jQuery.datepicker.formatDate('yy-mm-dd', date);
-                    return [$.inArray(string, array) == -1];
+                    });
+                });
+
+                $(function() {
+                    $("#end").datepicker({
+                        beforeShowDay: function(date){
+                        var string = jQuery.datepicker.formatDate('yy-mm-dd', date);
+                        return [$.inArray(string, array) == -1];
                 }
-            });
+                    });
+                });
+
+                $('#start').change(function() {
+                    startDate = $(this).datepicker('getDate');
+                    $("#end").datepicker("option", "minDate", startDate);
+                })
+
+                $('#end').change(function() {
+                    endDate = $(this).datepicker('getDate');
+                    $("#start").datepicker("option", "maxDate", endDate);
+                })
+            })
         </script>
     </body>
 </html>

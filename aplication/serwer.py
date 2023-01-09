@@ -1,7 +1,4 @@
-import re
-import sys
-import cgi
-import os
+import re, sys, cgi, os
 from http.client import HTTP_PORT
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from random import randint
@@ -679,8 +676,17 @@ class MyServer(BaseHTTPRequestHandler):
                 car_name = car[0][1] + " - " + car[0][2]
                 reservation_nr = str(uuid.uuid4().int)[:13]
                 
-                create_receipt(self, reservation_nr, name, surname, car_name, start, end)
+                create_receipt(self, reservation_nr, name, surname, car_name, start, end, user_id, email)
                 insert_reservation_record(reservation_nr ,start, end, car_id, user_id, name, surname, email, phonenr)
+
+                file = read_html_template('./templates/customer/info.html')
+                file = file.replace("$info", "Potwierdzenie rezerwacji zostało wysłane na Twój adres email.")
+                file = file.replace("$href", "")
+                self.send_response(200, "OK")
+                self.send_header('Content-type', 'text/html; charset=utf-8')
+                self.end_headers()
+                self.wfile.write(bytes(file, 'utf-8'))
+
 
                 
             
