@@ -31,14 +31,14 @@ def create_car_table():
     connection.commit()
     connection.close()
 
-def insert_car_record(brand, model, car_type, production_year, fuel_type, gearbox_type, price, city, nr_of_cars, image):
+def insert_car_record(brand, model, car_type, production_year, fuel_type, gearbox_type, price, city, image):
     connection, cursor = connect_to_db()
     cursor.execute("INSERT INTO Car(brand, model, car_type, production_year, fuel_type, gearbox_type, price, city, nr_of_cars, image) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                   (brand, model, car_type, production_year, fuel_type, gearbox_type, price, city, nr_of_cars, image))
+                   (brand, model, car_type, production_year, fuel_type, gearbox_type, price, city, 1, image))
     connection.commit()
     connection.close()
 
-def edit_car_record(car_id, brand, model, car_type, production_year, fuel_type, gearbox_type, price, city, nr_of_cars, image):
+def edit_car_record(car_id, brand, model, car_type, production_year, fuel_type, gearbox_type, price, city, image):
     connection, cursor = connect_to_db()
     query = "UPDATE Car SET "
     if(brand != ""):
@@ -57,8 +57,6 @@ def edit_car_record(car_id, brand, model, car_type, production_year, fuel_type, 
         query += "price = '" + price + "', "
     if(city != ""):
         query += "city = '" + city + "', "
-    if(nr_of_cars != ""):
-        query += "nr_of_cars = '" + nr_of_cars + "', "
     if(image != b''):
         query += "image = '" + image + "', "
 
@@ -71,14 +69,14 @@ def edit_car_record(car_id, brand, model, car_type, production_year, fuel_type, 
 
 def fetch_car_records():
     connection, cursor = connect_to_db()
-    data = cursor.execute("SELECT id, brand, model, car_type, production_year, fuel_type, gearbox_type, price, city, nr_of_cars, image FROM Car")
+    data = cursor.execute("SELECT id, brand, model, car_type, production_year, fuel_type, gearbox_type, price, city, image FROM Car")
     records = cursor.fetchall()
     connection.close()
     return records
 
 def fetch_car_by_id(id):
     connection, cursor = connect_to_db()
-    data = cursor.execute("SELECT id, brand, model, car_type, production_year, fuel_type, gearbox_type, price, city, nr_of_cars, image FROM Car WHERE id = ?", [id])
+    data = cursor.execute("SELECT id, brand, model, car_type, production_year, fuel_type, gearbox_type, price, city, image FROM Car WHERE id = ?", [id])
     records = cursor.fetchall()
     connection.close()
     return records

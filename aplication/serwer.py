@@ -2,7 +2,7 @@ import re, sys, cgi, os
 from http.client import HTTP_PORT
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from random import randint
-import datetime
+from datetime import datetime
 import uuid
 import json
 
@@ -13,9 +13,11 @@ from database.user_db import *
 from database.reservation_db import *
 from database.car_db import *
 from database.messages_db import *
-from login_service import *
-from edit_templates import *
-from server_service import *
+
+from services.email_service import *
+from services.server_service import *
+from services.login_service import *
+from services.edit_templates import *
 
 
 HOST = "0.0.0.0"
@@ -101,12 +103,15 @@ class MyServer(BaseHTTPRequestHandler):
                 file = insert_admin_page_button(file, username)
                 file = insert_login_button(self, file, SESSIONS)
             else:
-                file = "Musisz się zalogować"
+                file = read_html_template('./templates/customer/info.html')
+                file = file.replace("$info", "Musisz się zalogować")
+                file = file.replace("$href", "")
             
             self.send_response(200, "OK")
             self.send_header('Content-type', 'text/html; charset=utf-8')
             self.end_headers()
             self.wfile.write(bytes(file, 'utf-8'))
+            
 
         if self.path == '/data_edit':
             self.path = './templates/customer/data_edit.html'
@@ -115,7 +120,9 @@ class MyServer(BaseHTTPRequestHandler):
                 username = SESSIONS[self.user][0]
                 file = file.replace("$username", username)
             else:
-                file = "Musisz się zalogować"
+                file = read_html_template('./templates/customer/info.html')
+                file = file.replace("$info", "Musisz się zalogować")
+                file = file.replace("$href", "")
 
             self.send_response(200, "OK")
             self.send_header('Content-type', 'text/html; charset=utf-8')
@@ -148,7 +155,9 @@ class MyServer(BaseHTTPRequestHandler):
                 file = insert_login_button(self, file, SESSIONS)
                 file = insert_reservation_form_info(file, carId, username, dates_to_exclude)
             else:
-                file = "Musisz się zalogować"
+                file = read_html_template('./templates/customer/info.html')
+                file = file.replace("$info", "Musisz się zalogować")
+                file = file.replace("$href", "")
 
             self.send_response(200, "OK")
             self.send_header('Content-type', 'text/html; charset=utf-8')
@@ -217,7 +226,9 @@ class MyServer(BaseHTTPRequestHandler):
                 file = read_html_template(self.path)
                 file = insert_messages(self, file, SESSIONS)
             else:
-                file = "Musisz się zalogować"
+                file = read_html_template('./templates/customer/info.html')
+                file = file.replace("$info", "Musisz się zalogować")
+                file = file.replace("$href", "")
 
             
             self.send_response(200, "OK")
@@ -546,15 +557,14 @@ class MyServer(BaseHTTPRequestHandler):
                 gearbox_type = fields.get("gearbox_type")[0]
                 price = fields.get("price")[0]
                 city = fields.get("city")[0]
-                nr_of_cars = fields.get("nr_of_cars")[0]
                 image = fields.get("img")[0]
 
             if car_id == "":
-                insert_car_record(brand, model, car_type, production_year, fuel_type, gearbox_type, price, city, nr_of_cars, image)
+                insert_car_record(brand, model, car_type, production_year, fuel_type, gearbox_type, price, city, image)
                 file = file.replace("$info", "Dodano")
                 file = file.replace("$href", "admin")
             else:
-                edit_car_record(car_id, brand, model, car_type, production_year, fuel_type, gearbox_type, price, city, nr_of_cars, image)
+                edit_car_record(car_id, brand, model, car_type, production_year, fuel_type, gearbox_type, price, city, image)
                 file = file.replace("$info", "Zmieniono")
                 file = file.replace("$href", "admin")
                 
@@ -644,17 +654,22 @@ class MyServer(BaseHTTPRequestHandler):
                 fields = cgi.parse_multipart(self.rfile, pdict)
                 username = fields.get("username")[0]
                 content = fields.get("content")[0]
-                currentDateTime = datetime.datetime.now()
+                currentDateTime = datetime.now()
 
                 if 0 == 0:
                     #TODO sprawdzanie odbiorcy
                     user_id = get_user_id_by_username(username)
                     insert_message_record(user_id, content, "unread", currentDateTime)
 
-
+            
+                file = read_html_template('./templates/customer/info.html')
+                file = file.replace("$info", "Wiadomość została wysłana")
+                file = file.replace("$href", "/admin")
                 self.send_response(200, "OK")
+                self.send_header('Content-type', 'text/html; charset=utf-8')
                 self.end_headers()
-                self.wfile.write(bytes("ok", "utf-8"))
+                self.wfile.write(bytes(file, 'utf-8'))
+                
 
         if self.path == '/makeReservation':
             ctype, pdict = cgi.parse_header(self.headers.get('content-type'))

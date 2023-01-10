@@ -7,7 +7,7 @@ from barcode import EAN13
 from barcode.writer import ImageWriter
 import dotenv, random, string, os
 from database.user_db import *
-from email_service import *
+from services.email_service import *
 
 
 def read_html_template(path):
@@ -40,12 +40,6 @@ def create_receipt(self, reservation_nr, name, surname, car_name, start, end, us
     my_canvas.drawString(100, 670, "Do: " + end)
     my_canvas.drawImage("tmp/ean.png", 350, 650, 200, 107)
     my_canvas.save()
-
-    # file = read_bytes_from_file("tmp/Potwierdzenie.pdf")
-    # self.send_response(200, "OK")
-    # self.send_header('Content-type', 'application/pdf')
-    # self.end_headers()
-    # self.wfile.write(file)
 
     succes = send_email_with_receipt("tmp/Potwierdzenie.pdf", user_id, email)
 
