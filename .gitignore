@@ -8,3 +8,4 @@
 /aplication/__pycache__/
 **/__pycache__/*
 /aplication/test.py
+/aplication/.env
