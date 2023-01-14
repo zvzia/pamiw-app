@@ -21,7 +21,25 @@
             </div>
 
             <div id="right">
-                $logowanie
+              {% if logged == True %}
+                {% if unread_messages == True %}
+                    <a href="messages\">
+                        <button id = "messagesbutton" class="button_new_mes">Wiadomości [Nowe]</button></a> 
+                {% else %}
+                    <a href="messages">
+                        <button id = "messagesbutton" class="button">Wiadomości</button></a>
+                {% endif %}
+
+                <a href="profile_page">
+                    <button class="button">Profil</button></a>
+                <a href="log_out">
+                    <button class="button">Wyloguj się</button></a>
+              {% else %}
+                <a href="login_page">
+                    <button class="button">Zaloguj się</button></a>
+                <a href="register_page">
+                    <button class="button">Zarejestruj się</button></a>
+              {% endif %}
             </div>
             
             
@@ -43,34 +61,63 @@
                     <label for="brand">Marka:</label>
                     <select id="brand" name="brand">
                         <option value="any">Dowolna</option>
-                        $brandoptions
+                        {% for brandoption in filterOptions.0 %}
+                        <option value="{{ brandoption }}"> {{ brandoption }} </option>
+                        {% endfor %}
                     </select>
                     <label style = "padding-left: 20px;" for="car_type">Typ samochodu:</label>
                     <select id="car_type" name="car_type">
                         <option value="any">Dowolny</option>
-                        $cartypeoptions
+                        {% for cartypeoption in filterOptions.1 %}
+                        <option value="{{ cartypeoption }}"> {{ cartypeoption }} </option>
+                        {% endfor %}
                     </select>
                     <label style = "padding-left: 20px;" for="fuel_type">Typ paliwa:</label>
                     <select id="fuel_type" name="fuel_type">
                         <option value="any">Dowolna</option>
-                        $fueltypeoptions
+                        {% for fueltypeoption in filterOptions.2 %}
+                        <option value="{{ fueltypeoption }}"> {{ fueltypeoption }} </option>
+                        {% endfor %}
                     </select>
                     <label style = "padding-left: 20px;"  for="gearbox_type">Skrzynia biegów:</label>
                     <select id="gearbox_type" name="gearbox_type">
                         <option value="any">Dowolna</option>
-                        $gearboxtypeoptions
+                        {% for gearboxtypeoption in filterOptions.3 %}
+                        <option value="{{ gearboxtypeoption }}"> {{ gearboxtypeoption }} </option>
+                        {% endfor %}
                     </select>
                     <label style = "padding-left: 20px;" for="city">Miasto:</label>
                     <select id="city" name="city">
                         <option value="any">Dowolne</option>
-                        $cityoptions
+                        {% for cityoption in filterOptions.4 %}
+                        <option value="{{ cityoption }}"> {{ cityoption }} </option>
+                        {% endfor %}
                     </select>
                     <input type="submit" value="Filtruj">
                 </form>
 
                 <br>
             </div>
-                $tabela
+              {% if cars|length > 0 %}
+              {% for car in cars %}
+              <div class="center" id="wrapper">
+                <div id="left" style="margin-left: 10%;">
+                  <img class="centered-and-cropped" width="600px" height="400px" src="getImageFromCarDb?carId={{car.0}}"/>
+                </div>
+                <div id="right" style="margin-right: 13%;"><br><br><br>
+                  <h1> {{car.1}} -  {{car.2}}</h1>
+                  <p> {{car.4}} </p>
+                  <p> {{car.7}} /doba</p>
+                  <br><br><br>
+
+                  <a href="car_info?car_id={{car.0}}">
+                    <button class="button">Wyświetl</button></a>
+                </div>
+              </div>
+              <br><br>
+              {% endfor %}
+              {% endif %}
+
             </div>
 
             <br><br><br><br><br><br><br><br><br><br>
@@ -176,7 +223,7 @@
             }
             
             /*An array containing all the country names in the world:*/
-            var cars = [$autocompleteData];
+            var cars = {{ autocompleteData|safe }};
             
             /*initiate the autocomplete function on the "myInput" element, and pass along the countries array as possible autocomplete values:*/
             autocomplete(document.getElementById("csearch"), cars);

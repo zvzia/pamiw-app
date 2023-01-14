@@ -12,8 +12,14 @@
 
         <div class="center">
             <h1>Wiadomości</h1>
-            
-            $messages
+            {% for message in messages %}
+            <br>
+            {% if message.3 == 'unread' %}
+            <p style="border:2px solid rgb(80, 80, 80); background-color: rgb(220, 220, 220);"> Nowa </p>
+            {% endif %}
+            <p> {{ message.2 }}</p>
+            <p style="color:rgb(80, 80, 80); font-size:13px"> {{ message.4[:-10] }}</p><hr>
+            {% endfor %}
             <br><br><br>
 
             <a href="/profile_page">

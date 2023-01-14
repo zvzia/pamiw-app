@@ -35,13 +35,6 @@ def insert_user_record(username, password, name, surname, email, role):
     connection.commit()
     connection.close()
 
-def insert_all_user_info(username, password, name, surname, email):
-    connection, cursor = connect_to_db()
-    cursor.execute("INSERT INTO User(username, password, name, surname, email) VALUES(?, ?, ?, ?, ?)",
-                   (username, password, name, surname, email))
-    connection.commit()
-    connection.close()
-
 def update_user_record(username, password, name, surname, email):
     user_id = get_user_id_by_username(username)
     connection, cursor = connect_to_db()
@@ -58,7 +51,6 @@ def add_gh_user(username):
         connection.commit()
         connection.close()
 
-
 def get_user_info_by_id(id):
     connection, cursor = connect_to_db()
     data = cursor.execute("SELECT * FROM User WHERE id = ?", [id])
@@ -66,26 +58,12 @@ def get_user_info_by_id(id):
     connection.close()
     return record
 
-
-def fetch_user_records():
-    connection, cursor = connect_to_db()
-    data = cursor.execute("SELECT * FROM User")
-    records = cursor.fetchall()
-    connection.close()
-    return records
-
 def fetch_user_passwrd_by_username(username):
     connection, cursor = connect_to_db()
     data = cursor.execute("SELECT password FROM User WHERE username = ?", [username])
     records = cursor.fetchall()
     connection.close()
     return records
-
-def delete_user_record_by_username(username):
-    connection, cursor = connect_to_db()
-    data = cursor.execute("DELETE FROM User WHERE username = ?", [username])
-    connection.close()
-    return data
 
 def get_user_id_by_username(username):
     connection, cursor = connect_to_db()
@@ -97,12 +75,16 @@ def get_user_id_by_username(username):
     else: 
         return records[0][0]
 
-def get_role_by_userid(id):
+def get_role_by_username(username):
     connection, cursor = connect_to_db()
-    data = cursor.execute("SELECT role FROM User WHERE id = ?", [id])
-    records = cursor.fetchall()
+    data = cursor.execute("SELECT role FROM User WHERE username = ?", [username])
+    record = cursor.fetchone()
     connection.close()
-    if len(records) == 0:
-        return 0
-    else: 
-        return records[0][0]
+    return record
+
+def get_user_by_username(username):
+    connection, cursor = connect_to_db()
+    data = cursor.execute("SELECT * FROM User WHERE username = ?", [username])
+    record = cursor.fetchone()
+    connection.close()
+    return record

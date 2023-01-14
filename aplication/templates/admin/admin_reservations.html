@@ -38,7 +38,13 @@
                   <th>E-mail</th>
                   <th>Numer telefonu</th>
                 </tr>
-                $reservationtable
+                {% for reservation in reservations %}
+                <tr>
+                    {% for col in reservation %}
+                    <td> {{ col }}</td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
               </table>
 
             </a>

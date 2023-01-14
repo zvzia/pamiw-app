@@ -2,7 +2,7 @@
 <html lang="pl">
     <head>
         <meta charset="utf-8">
-        <title>$carname</title>
+        <title>{{ info.1 }}</title>
         <link rel="stylesheet" type="text/css" href="../../static/css/styles.css"/>
 
         <style>
@@ -35,7 +35,26 @@
             </div>
 
             <div id="right">
-                $logowanie
+                {% if logged == True %}
+                {% if unread_messages == True %}
+                    <a href="messages\">
+                        <button id = "messagesbutton" class="button_new_mes">Wiadomości [Nowe]</button></a> 
+                {% else %}
+                    <a href="messages">
+                        <button id = "messagesbutton" class="button">Wiadomości</button></a>
+                {% endif %}
+
+                <a href="profile_page">
+                    <button class="button">Profil</button></a>
+                <a href="log_out">
+                    <button class="button">Wyloguj się</button></a> 
+                <script src="new_message.js"></script>
+              {% else %}
+                <a href="login_page">
+                    <button class="button">Zaloguj się</button></a>
+                <a href="register_page">
+                    <button class="button">Zarejestruj się</button></a>
+              {% endif %}
             </div>
             
         </div>
@@ -43,51 +62,51 @@
 
         <div class="pad5">
             <div class="centercarinfo" id="wrapper">
-                <h1>$carname</h1>
+                <h1>{{ info.1 }}</h1>
 
                 <div id="left" style="margin-left: 10%;">
-                    $image
+                    <img class="centered-and-cropped" width="600px" height="400px" src="getImageFromCarDb?carId={{ info.0 }}"/>"
                 </div>
                 <div id="right" style="margin-right: 13%;">
                     <table class="infotable">
                         <tr>
                             <td>Marka:</td>
-                            <td>$brand</td>
+                            <td>{{ info.2 }}</td>
                         </tr>
                         <tr>
                             <td>Model:</td>
-                            <td>$model</td>
+                            <td>{{ info.3 }}</td>
                         </tr>
                         <tr>
                             <td>Typ:</td>
-                            <td>$car_type</td>
+                            <td>{{ info.4 }}</td>
                         </tr>
                         <tr>
                             <td>Rok produkcji:</td>
-                            <td>$production_year</td>
+                            <td>{{ info.5 }}</td>
                         </tr>
                         <tr>
                             <td>Typ paliwa:</td>
-                            <td>$fuel_type</td>
+                            <td>{{ info.6 }}</td>
                         </tr>
                         <tr>
                             <td>Skrzynia biegów:</td>
-                            <td>$gearbox_type</td>
+                            <td>{{ info.7 }}</td>
                         </tr>
                         <tr>
                             <td>Cena za dobe::</td>
-                            <td>$price</td>
+                            <td>{{ info.8 }}</td>
                         </tr>
                         <tr>
                             <td>Miasto:</td>
-                            <td>$city</td>
+                            <td>{{ info.9 }}</td>
                         </tr> 
                         
                     </table>
                     <br><br><br>
                     <a href="/oferta">
                         <button class="button">Powrót</button></a>
-                    <a href="/make_reservation?car_id=$carid" method="post" >
+                    <a href="/make_reservation?car_id={{ info.0 }}" method="post" >
                             <button class="button">Zarezerwuj</button></a>
 
                 </div>

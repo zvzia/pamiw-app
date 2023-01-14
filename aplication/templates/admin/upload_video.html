@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="pl">
+    <head>
+        <meta charset="utf-8">
+        <title>Info</title>
+        <link rel="stylesheet" type="text/css" href="../../static/css/styles.css"/>
+        <script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
+        <link rel="stylesheet" href="https://unpkg.com/dropzone@5/dist/min/dropzone.min.css" type="text/css" />
+    
+    </head>
+
+
+    <body class="padeditcar">
+
+        <div class="center">
+            <h1>Dodaj wideo:</h1>
+            <form
+                method="POST"
+                action="/upload"
+                class="dropzone dz-clickable"
+                id="dropper"
+                enctype="multipart/form-data"
+            >
+            </form>
+
+            <script type="application/javascript">
+                Dropzone.options.dropper = {
+                    paramName: "file",
+                    chunking: true,
+                    forceChunking: true,
+                    url: "/upload",
+                    maxFilesize: 3500, // megabytes
+                    chunkSize: 1000000 // bytes
+                }
+            </script>
+
+            <br>
+            <a href="/admin">
+                <button class="button">Powrót</button>
+            </a>
+
+        </div>
+
+    </body>
+</html>

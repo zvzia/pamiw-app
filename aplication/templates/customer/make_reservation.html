@@ -27,16 +27,35 @@
             </div>
 
             <div id="right">
-                $logowanie
+                {% if logged == True %}
+                {% if unread_messages == True %}
+                    <a href="messages\">
+                        <button id = "messagesbutton" class="button_new_mes">Wiadomości [Nowe]</button></a> 
+                {% else %}
+                    <a href="messages">
+                        <button id = "messagesbutton" class="button">Wiadomości</button></a>
+                {% endif %}
+
+                <a href="profile_page">
+                    <button class="button">Profil</button></a>
+                <a href="log_out">
+                    <button class="button">Wyloguj się</button></a> 
+                <script src="new_message.js"></script>
+              {% else %}
+                <a href="login_page">
+                    <button class="button">Zaloguj się</button></a>
+                <a href="register_page">
+                    <button class="button">Zarejestruj się</button></a>
+              {% endif %}
             </div> 
         </div>
 
         <div class = "padlogin">
             <div class="center">
-                <h1>Rezerwacja: $carname</h1>
-                <form method="POST", action='/makeReservation' enctype="multipart/form-data">
-                    <input type="hidden" id="car_id" name="car_id" value="$carid" >
-                    <input type="hidden" id="user_id" name="user_id" value="$userid" >
+                <h1>Rezerwacja: {{ info.0 }}</h1>
+                <form method="POST", action='/make_reservation' enctype="multipart/form-data">
+                    <input type="hidden" id="car_id" name="car_id" value="{{ info.1 }}" >
+                    <input type="hidden" id="user_id" name="user_id" value="{{ info.2 }}" >
 
                     <label for="start">Dzień rozpoczęcia</label><br>
                     <input type="text" id="start" name="start"><br><br>
@@ -60,7 +79,7 @@
                 </form> 
 
                 <br>
-                <a href="/car_info?car_id=$carid">
+                <a href="/car_info?car_id={{ info.1 }}">
                     <button class="button">Powrót</button>
                 </a>
 
@@ -69,7 +88,7 @@
 
 
         <script>
-            var array = $excludedates
+            var array = {{ excludedates|safe }}
 
             $(document).ready(function() {
 

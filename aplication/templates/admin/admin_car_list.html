@@ -39,7 +39,17 @@
                   <th>Miasto</th>
                   <th></th>
                 </tr>
-                $cartable
+                {% for car in cars %}
+                <tr>
+                    {% for col in car[1:-1] %}
+                    <td> {{ col }} </td>
+                    {% endfor %}
+                    <td> 
+                        <a href="edit_car?car_id={{ car.0 }}">
+                            <button class="button">Edytuj</button></a>
+                    </td>
+                </tr>
+                {% endfor %}
               </table>
 
               <br><br>

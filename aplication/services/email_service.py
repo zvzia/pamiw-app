@@ -1,10 +1,14 @@
-import smtplib
-import ssl
+import smtplib, os, ssl, dotenv
 from email.message import EmailMessage
-from time import sleep
-from datetime import datetime, timedelta 
-from uuid import uuid4
+from reportlab.pdfgen import canvas
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.lib.pagesizes import A4
+from barcode import EAN13
+from barcode.writer import ImageWriter
+
 from database.user_db import *
+from services.email_service import *
 
 
 import dotenv, os
@@ -51,3 +55,24 @@ def send_email_with_receipt(receipt_path, receiver_id, receiver_email):
     """ 
 
     return send_email(email, subject, body, receipt_path)
+
+def create_receipt(reservation_nr, name, surname, car_name, start, end, user_id, email):
+    my_code = EAN13(reservation_nr, writer=ImageWriter())
+    my_code.save("tmp/ean")
+
+    pdfmetrics.registerFont(TTFont('Arial', 'arial.ttf'))
+    my_canvas = canvas.Canvas("tmp/Potwierdzenie.pdf", pagesize=A4)
+    my_canvas.setFont("Arial", 14)
+    my_canvas.drawString(100, 750, "Numer rezerwacji: " + reservation_nr)
+    my_canvas.drawString(100, 730, "Imię i Nazwisko: " + name + " " + surname)
+    my_canvas.drawString(100, 710, "Samochód: " + car_name)
+    my_canvas.drawString(100, 690, "Od: " + start)
+    my_canvas.drawString(100, 670, "Do: " + end)
+    my_canvas.drawImage("tmp/ean.png", 350, 650, 200, 107)
+    my_canvas.save()
+
+    succes = send_email_with_receipt("tmp/Potwierdzenie.pdf", user_id, email)
+
+    if(succes):
+        os.remove("tmp/ean.png")
+        os.remove("tmp/Potwierdzenie.pdf")

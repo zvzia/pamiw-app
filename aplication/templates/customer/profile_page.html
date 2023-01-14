@@ -19,7 +19,25 @@
             </div>
 
             <div id="right">
-                $logowanie
+                {% if logged == True %}
+                {% if unread_messages == True %}
+                    <a href="messages\">
+                        <button id = "messagesbutton" class="button_new_mes">Wiadomości [Nowe]</button></a> 
+                {% else %}
+                    <a href="messages">
+                        <button id = "messagesbutton" class="button">Wiadomości</button></a>
+                {% endif %}
+
+                <a href="profile_page">
+                    <button class="button">Profil</button></a>
+                <a href="log_out">
+                    <button class="button">Wyloguj się</button></a> 
+              {% else %}
+                <a href="login_page">
+                    <button class="button">Zaloguj się</button></a>
+                <a href="register_page">
+                    <button class="button">Zarejestruj się</button></a>
+              {% endif %}
             </div> 
         </div>
 
@@ -27,8 +45,15 @@
             <div class="center">
                 <h1>Mój profil</h1>
                 
-                $dataeditbutton
-                $adminpage
+                {% if role == 'client' %}
+                <a href="/data_edit">
+                    <button class="button">Edytuj moje dane</button></a>
+                {% endif %}
+
+                {% if role == 'admin' %}
+                <a href="/admin">
+                    <button class="button">Strona administratora</button></a>
+                {% endif %}
 
                 <br>
                 <a href="/messages" method="post">

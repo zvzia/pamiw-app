@@ -12,32 +12,32 @@
 
         <div class="center">
             <h1>Edytuj samochód:</h1>
-            <form method="POST", action='/addCar' enctype="multipart/form-data">
-                <input type="hidden" id="car_id" name="car_id" value="$carid" ><br><br>
+            <form method="POST", action='/add_car' enctype="multipart/form-data">
+                <input type="hidden" id="car_id" name="car_id" value="{{ info.0 }}" ><br><br>
 
                 <label for="brand">marka</label><br>
-                <input type="text" id="brand" name="brand" value="$brand"><br><br>
+                <input type="text" id="brand" name="brand" value="{{ info.1 }}"><br><br>
 
                 <label for="model">model</label><br>
-                <input type="text" id="model" name="model" value="$model"><br><br>
+                <input type="text" id="model" name="model" value="{{ info.2 }}"><br><br>
 
                 <label for="car_type">Typ</label><br>
-                <input type="text" id="car_type" name="car_type" value="$cartype"><br><br>
+                <input type="text" id="car_type" name="car_type" value="{{ info.3 }}"><br><br>
 
                 <label for="production_year">Rok produkcji</label><br>
-                <input type="text" id="production_year" name="production_year" value="$productionyear"><br><br>
+                <input type="text" id="production_year" name="production_year" value="{{ info.4 }}"><br><br>
 
                 <label for="fuel_type">Typ paliwa</label><br>
-                <input type="text" id="fuel_type" name="fuel_type" value="$fueltype"><br><br>
+                <input type="text" id="fuel_type" name="fuel_type" value="{{ info.5 }}"><br><br>
 
                 <label for="gearbox_type">Skrzynia biegów</label><br>
-                <input type="text" id="gearbox_type" name="gearbox_type" value="$gearboxtype"><br><br>
+                <input type="text" id="gearbox_type" name="gearbox_type" value="{{ info.6 }}"><br><br>
 
                 <label for="price">Cena</label><br>
-                <input type="text" id="price" name="price" value="$price"><br><br>
+                <input type="text" id="price" name="price" value="{{ info.7 }}"><br><br>
 
                 <label for="city">Miasto</label><br>
-                <input type="text" id="city" name="city" value="$city"><br><br>
+                <input type="text" id="city" name="city" value="{{ info.8 }}"><br><br>
 
                 <label for="img">Zdjęcie</label>
                 <input type="file" id="img" name="img" accept="image/*"><br><br>

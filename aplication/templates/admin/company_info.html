@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="pl">
+    <head>
+        <meta charset="utf-8">
+        <title>Info</title>
+        <link rel="stylesheet" type="text/css" href="../../static/css/styles.css"/>
+    </head>
+
+    <body class="padeditcar">
+
+        <div class="center">
+            <h1>Edytuj informacje:</h1>
+            <form method="POST", action='/admin/company_info' enctype="multipart/form-data">
+                <label for="description">Opis</label><br>
+                <textarea rows="8" cols="70" id="description" name="description">{{ info.0 }}</textarea><br><br>
+
+                <label for="phonenr">Numer telefonu</label><br>
+                <input type="text" id="phonenr" name="phonenr" value="{{ info.1 }}"><br><br>
+
+                <label for="email">Email</label><br>
+                <input type="text" id="email" name="email" value="{{ info.2 }}"><br><br>
+
+                <input type="submit" value="Zapisz">
+            </form> 
+
+                <br>
+                <a href="/upload">
+                    <button class="button">Dodaj wideo</button>
+                <br>
+                <a href="/admin">
+                    <button class="button">Powrót</button>
+            </a>
+
+        </div>
+
+    </body>
+</html>

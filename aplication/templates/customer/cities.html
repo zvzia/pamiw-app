@@ -20,7 +20,26 @@
             </div>
 
             <div id="right">
-                $logowanie
+                {% if logged == True %}
+                {% if unread_messages == True %}
+                    <a href="messages\">
+                        <button id = "messagesbutton" class="button_new_mes">Wiadomości [Nowe]</button></a> 
+                {% else %}
+                    <a href="messages">
+                        <button id = "messagesbutton" class="button">Wiadomości</button></a>
+                {% endif %}
+
+                <a href="profile_page">
+                    <button class="button">Profil</button></a>
+                <a href="log_out">
+                    <button class="button">Wyloguj się</button></a> 
+                <script src="new_message.js"></script>
+              {% else %}
+                <a href="login_page">
+                    <button class="button">Zaloguj się</button></a>
+                <a href="register_page">
+                    <button class="button">Zarejestruj się</button></a>
+              {% endif %}
             </div>
             
             
@@ -29,7 +48,9 @@
         <div style="text-align: center">
             <h1 style="color:rgb(80, 80, 80)"> Miasta, w których oferujemy wynajem</h1>
             <br>
-            $citiesbuttons
+            {% for city in cities %}
+            <a href="/oferta?city={{ city }}"><button class="button-big"> {{ city }} </button></a><br><br>
+            {% endfor %}
             
         </div>
 

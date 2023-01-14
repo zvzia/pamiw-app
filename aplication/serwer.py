@@ -1,13 +1,15 @@
-import re, sys, cgi, os
-from http.client import HTTP_PORT
-from http.server import HTTPServer, BaseHTTPRequestHandler
-from random import randint
+from flask import Flask, render_template, request, make_response, redirect
+from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
+from flask_uploads import IMAGES, UploadSet, configure_uploads
+from werkzeug.utils import secure_filename
+from os.path import exists
+from collections import deque
+import os
 from datetime import datetime
 import uuid
 import json
 
 from requests import Request, post, get
-from socketserver import ThreadingMixIn
 
 from database.user_db import *
 from database.reservation_db import *
@@ -17,7 +19,7 @@ from database.messages_db import *
 from services.email_service import *
 from services.server_service import *
 from services.login_service import *
-from services.edit_templates import *
+from services.templates_service import *
 
 
 HOST = "0.0.0.0"
@@ -28,724 +30,550 @@ CLIENT_ID = os.getenv("CLIENT_ID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 dotenv.load_dotenv(verbose=True)
 
+app = Flask(__name__)
 
-class ThreadingHTTPServer(ThreadingMixIn, HTTPServer):
-    daemon_threads = True
+login_manager = LoginManager()
+login_manager.init_app(app)
 
-class MyServer(BaseHTTPRequestHandler):
+app.secret_key = "2c27100cd9cc4fb382205bfaf222a17c14f617c58fda485da16b0f6a14b4fd1c"
 
-    def do_GET(self):
-        cookies = self.parse_cookies(self.headers["Cookie"])
+DATABASE = "./databese/car_rental.db"
 
-        if "sid" in cookies:
-            if (cookies["sid"] in SESSIONS):
-                self.user = cookies["sid"]
- 
+class User(UserMixin):
+    pass
 
-        if self.path == '/':
-            self.path = './templates/customer/start_page.html'
-            file = read_html_template(self.path)
+@login_manager.user_loader
+def user_loader(username):
+    if username is None:
+        return None
 
-            file = insert_login_button(self, file, SESSIONS)
-                
-            self.send_response(200, "OK")
-            self.send_header('Content-type', 'text/html; charset=utf-8')
-            self.end_headers()
-            self.wfile.write(bytes(file, 'utf-8'))  
+    row = get_user_by_username(username)
+    try:
+        username = row[1]
+        password = row[2]
+    except:
+        return None
 
-        if self.path == '/oferta':
-            self.path = './templates/customer/offer.html'
-            file = read_html_template(self.path)
-            
-            file = insert_car_table(file)
-            file = insert_login_button(self, file, SESSIONS)
-            file = insert_autocomplete_data(file)
-            file = insert_filter_options(file)
-                
-            self.send_response(200, "OK")
-            self.send_header('Content-type', 'text/html; charset=utf-8')
-            self.end_headers()
-            self.wfile.write(bytes(file, 'utf-8'))  
-
-        if self.path == '/login_page':
-            self.path = './templates/customer/login_page.html'
-            file = read_html_template(self.path)
-            self.send_response(200, "OK")
-            self.send_header('Content-type', 'text/html; charset=utf-8')
-            self.end_headers()
-            self.wfile.write(bytes(file, 'utf-8'))
-
-        if self.path == '/log_out':
-            self.logout()
-            file = read_html_template('./templates/customer/info.html')
-            file = file.replace("$info", "Wylogowano")
-            file = file.replace("$href", "")
-            self.send_response(200, "OK")
-            self.send_header('Content-type', 'text/html; charset=utf-8')
-            self.end_headers()
-            self.wfile.write(bytes(file, 'utf-8'))
-
-        if self.path == '/register_page':
-            self.path = './templates/customer/register_page.html'
-            file = read_html_template(self.path)
-            self.send_response(200, "OK")
-            self.send_header('Content-type', 'text/html; charset=utf-8')
-            self.end_headers()
-            self.wfile.write(bytes(file, 'utf-8'))
-
-        if self.path == '/profile_page':
-            self.path = './templates/customer/profile_page.html'
-
-            if(hasattr(self, "user")):
-                file = read_html_template(self.path)
-                username = SESSIONS[self.user][0]
-                file = insert_dataedit_button(file, username)
-                file = insert_admin_page_button(file, username)
-                file = insert_login_button(self, file, SESSIONS)
-            else:
-                file = read_html_template('./templates/customer/info.html')
-                file = file.replace("$info", "Musisz się zalogować")
-                file = file.replace("$href", "")
-            
-            self.send_response(200, "OK")
-            self.send_header('Content-type', 'text/html; charset=utf-8')
-            self.end_headers()
-            self.wfile.write(bytes(file, 'utf-8'))
-            
-
-        if self.path == '/data_edit':
-            self.path = './templates/customer/data_edit.html'
-            if(hasattr(self, "user")):
-                file = read_html_template(self.path)
-                username = SESSIONS[self.user][0]
-                file = file.replace("$username", username)
-            else:
-                file = read_html_template('./templates/customer/info.html')
-                file = file.replace("$info", "Musisz się zalogować")
-                file = file.replace("$href", "")
-
-            self.send_response(200, "OK")
-            self.send_header('Content-type', 'text/html; charset=utf-8')
-            self.end_headers()
-            self.wfile.write(bytes(file, 'utf-8'))
-
-        if self.path[0:10] == '/car_info?':
-            carId = int(self.path[17:])
-            self.path = './templates/customer/car_info.html'
-            file = read_html_template(self.path)
-
-            file = insert_car_info(file, carId)
-            file = insert_login_button(self, file, SESSIONS)
-                
-            self.send_response(200, "OK")
-            self.send_header('Content-type', 'text/html; charset=utf-8')
-            self.end_headers()
-            self.wfile.write(bytes(file, 'utf-8'))
-
-        if self.path[0:18] == '/make_reservation?':
-            carId = int(self.path[25:])
-            self.path = './templates/customer/make_reservation.html'
-
-            if(hasattr(self, "user")):
-                username = SESSIONS[self.user][0]
-
-                dates_to_exclude = get_dates_to_exclude(carId)
-
-                file = read_html_template(self.path)
-                file = insert_login_button(self, file, SESSIONS)
-                file = insert_reservation_form_info(file, carId, username, dates_to_exclude)
-            else:
-                file = read_html_template('./templates/customer/info.html')
-                file = file.replace("$info", "Musisz się zalogować")
-                file = file.replace("$href", "")
-
-            self.send_response(200, "OK")
-            self.send_header('Content-type', 'text/html; charset=utf-8')
-            self.end_headers()
-            self.wfile.write(bytes(file, 'utf-8'))
+    user = User()
+    user.id = username
+    user.username = username
+    user.password = password
+    return user
 
 
-        if self.path[-4:] == '.png' or self.path[-4] == '.jpg':
-            self.path = "templates/" + self.path.partition("/")[-1]
-            data = read_bytes_from_file(self.path)
-            
-            self.send_response(200, "OK")
-            self.send_header('Content-type', 'image/*')
-            self.end_headers()
-            self.wfile.write(data)
+@login_manager.request_loader
+def request_loader(request):
+    username = request.form.get('username')
+    user = user_loader(username)
+    return user
 
-        if self.path == '/miasta':
-            self.path = './templates/customer/cities.html'
-            file = read_html_template(self.path)
-            file = insert_login_button(self, file, SESSIONS)
-            file = insert_cities_buttons(file)
-            self.send_response(200, "OK")
-            self.send_header('Content-type', 'text/html; charset=utf-8')
-            self.end_headers()
-            self.wfile.write(bytes(file, 'utf-8'))
+recent_users = deque(maxlen=3)
 
-        if self.path == '/oNas':
-            self.path = './templates/customer/aboutus.html'
-            file = read_html_template(self.path)
-            file = insert_login_button(self, file, SESSIONS)
-            #file = insert_contact_information(file)
-            self.send_response(200, "OK")
-            self.send_header('Content-type', 'text/html; charset=utf-8')
-            self.end_headers()
-            self.wfile.write(bytes(file, 'utf-8'))
 
-        if self.path[:25] == '/getImageFromCarDb?carId=':
-            carId = self.path[25:]
-            data = getImageFromDBByCarId(carId)
-            
-            self.send_response(200, "OK")
-            self.send_header('Content-type', 'image/*')
-            self.end_headers()
-            self.wfile.write(data)
+@app.route("/", methods=['GET'])
+def start():
+    if request.method == 'GET':
+        
+        if current_user.is_authenticated:
+            logged = True
+            username = current_user.username
+            unread_messages = check_for_unread_messages(username)
+        else:
+            logged = False
+            unread_messages = False
 
-        if self.path[0:13] == '/oferta?city=':
-            city = self.path[13:]
+        return render_template("customer/start_page.html", logged=logged, unread_messages=unread_messages)
+
+@app.route("/oferta", methods=['GET'])
+def offer():
+    if request.method == 'GET':
+        city  = request.args.get('city', None)
+
+        if current_user.is_authenticated:
+            logged = True
+            username = current_user.username
+            unread_messages = check_for_unread_messages(username)
+        else:
+            logged = False
+            unread_messages = False
+        
+        autocomplete_data = get_autocomplete_data()
+        filter_options = get_filter_options()
+
+        if city is None:
+            cars = fetch_car_records()
+            return render_template("customer/offer.html", logged=logged, unread_messages=unread_messages, cars=cars, autocompleteData=json.dumps(autocomplete_data), filterOptions=filter_options )
+
+        else:
             brand = "any"
             car_type = "any"
             fuel_type = "any"
             gearbox_type = "any"
 
-            self.path = './templates/customer/offer.html'
-            file = read_html_template(self.path)
-            file = insert_filtered_cars(file, brand, car_type, fuel_type, gearbox_type, city)
-            file = insert_login_button(self, file, SESSIONS)
+            cars = fetch_car_records_by_filter_conditions(brand, car_type, fuel_type, gearbox_type, city)
+            return render_template("customer/offer.html", logged=logged, unread_messages=unread_messages, cars=cars, autocompleteData=json.dumps(autocomplete_data), filterOptions=filter_options)
+
+@app.route("/search_cars", methods=['POST'])
+def search_cars():
+    if request.method == 'POST':
+        csearch = request.form.get("csearch")
+
+        if current_user.is_authenticated:
+            logged = True
+            username = current_user.username
+            unread_messages = check_for_unread_messages(username)
+        else:
+            logged = False
+            unread_messages = False
+
+        cars = get_serached_cars(csearch)
+        autocomplete_data = get_autocomplete_data()
+        filter_options = get_filter_options()
+
+        return render_template("customer/offer.html", logged=logged, unread_messages=unread_messages, cars=cars, autocompleteData=json.dumps(autocomplete_data), filterOptions=filter_options)
+
+@app.route("/filter_cars", methods=['POST'])
+def filter_cars():
+    if request.method == 'POST':
+        brand = request.form.get("brand")
+        car_type = request.form.get("car_type")
+        fuel_type = request.form.get("fuel_type")
+        gearbox_type = request.form.get("gearbox_type")
+        city = request.form.get("city")
+
+        if current_user.is_authenticated:
+            logged = True
+            username = current_user.username
+            unread_messages = check_for_unread_messages(username)
+        else:
+            logged = False
+            unread_messages = False
+
+        cars = get_filtered_cars( brand, car_type, fuel_type, gearbox_type, city)
+        autocomplete_data = get_autocomplete_data()
+        filter_options = get_filter_options()
+
+        return render_template("customer/offer.html", logged=logged, unread_messages=unread_messages, cars=cars, autocompleteData=json.dumps(autocomplete_data), filterOptions=filter_options)
+
+
+@app.route("/login_page", methods=["GET","POST"])
+def login():
+    if request.method == "GET":
+        return render_template("customer/login_page.html")
+    if request.method == "POST":
+        username = request.form.get("username")
+        password = request.form.get("password")
+        user = user_loader(username)
+
+        if user is None:
+            return "Nieprawidłowy login lub hasło", 401
         
-            self.send_response(200, "OK")
-            self.end_headers()
-            self.wfile.write(bytes(file, "utf-8"))
+        if(password == '' or username == ''):
+            return "Nieprawidłowy login lub hasło", 401
+
+        if check_password(password, user.password):
+            login_user(user)
+            role = get_role_by_username(username)
+            if role == "admin":
+                return redirect('/admin')
+            else:
+                return redirect('/')
+        else:
+            return "Nieprawidłowy login lub hasło", 401
+
+@app.route("/log_out")
+def logout():
+    logout_user()
+    return redirect("/")
+
+@app.route("/register", methods=["GET","POST"])
+def register():
+    if request.method == "GET":
+        return render_template("customer/register_page.html")
+    if request.method == "POST":
+        username = request.form.get("username")
+        password = request.form.get("password")
+        password_retyped = request.form.get("password_retyped")
+
         
-        if self.path == '/messages':
-            self.path = './templates/customer/messages.html'
+        if password == password_retyped:
+            #sprawdzanie czy juz jest taki uzytkownik
+            records = fetch_user_passwrd_by_username(username)
+            if len(records) <= 0 :
+                #dodawanie rekordu
+                insert_user_record(username, hash_password(password), "", "", "", "client")
 
-            if(hasattr(self, "user")):
-                file = read_html_template(self.path)
-                file = insert_messages(self, file, SESSIONS)
+                user = user_loader(username)
+                login_user(user)
+                return redirect('/start_page')
             else:
-                file = read_html_template('./templates/customer/info.html')
-                file = file.replace("$info", "Musisz się zalogować")
-                file = file.replace("$href", "")
+                return render_template("customer/info.html", info="Taki użytkownik już istnieje", href="register_page")
+        else:
+            return render_template("customer/info.html", info="Hasła nie pokrywają się", href="register_page")
 
-            
-            self.send_response(200, "OK")
-            self.send_header('Content-type', 'text/html; charset=utf-8')
-            self.end_headers()
-            self.wfile.write(bytes(file, 'utf-8'))
+@app.route("/profile_page", methods=['GET'])
+@login_required
+def profilePage():
+    username = current_user.username
+    role = get_role_by_username(username)[0]
+    unread_messages = check_for_unread_messages(username)
 
-        if self.path[-4:] == '.css':
-            self.path = "./" + self.path.partition("/")[-1]
-            file = read_html_template(self.path)
-            
-            self.send_response(200, "OK")
-            self.send_header('Content-type', 'text/css')
-            self.end_headers()
-            self.wfile.write(bytes(file, 'utf-8'))
+    return render_template("customer/profile_page.html", role=role, logged=True, unread_messages=unread_messages)
 
-        if self.path[-3:] == '.js':
-            self.path = "./" + self.path.partition("/")[-1]
-            file = read_html_template(self.path)
-            
-            self.send_response(200, "OK")
-            self.send_header('Content-type', 'text/js')
-            self.end_headers()
-            self.wfile.write(bytes(file, 'utf-8'))
-
-
-        if self.path == '/githubauth':
-            random_state = generate_state()
-            params = {
-                "client_id": CLIENT_ID,
-                "redirect_uri": "http://localhost:8080/callback",
-                "scope": "repo user",
-                "state": random_state
-            }
-
-            authorize = Request("GET", "https://github.com/login/oauth/authorize", params=params).prepare()
-
-            cookie = "state={}".format(random_state)
-            self.send_response(302)
-            self.send_header('Location',authorize.url)
-            self.send_header('Set-Cookie', cookie)
-            self.end_headers()
-
-        if self.path[:9] == '/callback':
-            file = read_html_template('./templates/customer/info.html')
-            code = (re.search('code=(.*)&state=', self.path)).group(1)
-            state = self.path.split("&state=",1)[1]
-
-            if ("state" or " state" in cookies):
-                if ("state" in cookies and state != cookies["state"]):
-                    file = file.replace("$info", "State does not match. Possible authorization_code injection attempt")
-                    file = file.replace("$href", "login_page")
-                    
-                    self.send_response(400)
-                    self.send_header('Content-type', 'text/html; charset=utf-8')
-                    self.end_headers()
-                    self.wfile.write(bytes(file, 'utf-8'))
-                if (" state" in cookies and state != cookies[" state"]):
-                    file = file.replace("$info", "State does not match. Possible authorization_code injection attempt")
-                    file = file.replace("$href", "login_page")
-                    
-                    self.send_response(400)
-                    self.send_header('Content-type', 'text/html; charset=utf-8')
-                    self.end_headers()
-                    self.wfile.write(bytes(file, 'utf-8'))
-            else:
-                file = file.replace("$info", "Błąd autoryzacji")
-                file = file.replace("$href", "login_page")
-
-                self.send_response(400)
-                self.send_header('Content-type', 'text/html; charset=utf-8')
-                self.end_headers()
-                self.wfile.write(bytes(file, 'utf-8'))
-
-            #request token
-            params = {
-                "client_id": CLIENT_ID,
-                "client_secret": CLIENT_SECRET,
-                "code": code
-            }
-            resp = post("https://github.com/login/oauth/access_token", params=params)
-            access_token = resp.text
-
-            #request user data
-            param = 'token ' + access_token[13:-36]
-            url = 'https://api.github.com/user'
-            headers = {"Authorization": param}
-
-            respUserData = get(url=url, headers=headers)
-
-            userData = json.loads(respUserData.text)
-            username = "ghUser-" + userData["login"]
-
-            add_gh_user(username)
-            sid = self.generate_sid()
-            self.cookie = "sid={}".format(sid)
-            SESSIONS[sid] = [username]
-            
-            file = file.replace("$info", "Zalogowano przez GitHub OAuth Server")
-            file = file.replace("$href", "")
-            self.send_response(200, "OK")
-            self.send_header('Content-type', 'text/html; charset=utf-8')
-            if hasattr(self, 'cookie'):
-                self.send_header('Set-Cookie', self.cookie)
-            self.end_headers()
-            self.wfile.write(bytes(file, 'utf-8'))
+@app.route("/data_edit", methods=["GET","POST"])
+@login_required
+def dataEdit():
+    if request.method == "GET":
+        return render_template("customer/data_edit.html", username=current_user.username)
+    if request.method == "POST":
+        username = request.form.get("username")
+        password = request.form.get("password")
+        password_retyped = request.form.get("password_retyped")
+        name = request.form.get("name")
+        surname = request.form.get("surname")
+        email = request.form.get("email")
         
+        if password == password_retyped:
+            update_user_record(username, hash_password(password), name, surname, email)
+            return render_template("customer/info.html", info="Dane zostały zmienione", href="data_edit")
+        else:
+            return render_template("customer/info.html", info="Hasła nie pokrywają się", href="data_edit")
 
+@app.route("/car_info", methods=['GET'])
+def carInfo():
+    if request.method == 'GET':
+        if current_user.is_authenticated:
+            logged = True
+            username = current_user.username
+            unread_messages = check_for_unread_messages(username)
+        else:
+            logged = False
+            unread_messages = False
 
+        carId  = request.args.get('car_id', None)
+        car_info = get_car_info(carId)
 
-        #admin -------------------------------------------------
+        return render_template("customer/car_info.html", logged=logged, unread_messages=unread_messages, info=car_info)
 
-        if self.path == '/admin':
-            verification = check_if_admin(self, SESSIONS)
+@app.route("/make_reservation", methods=['GET', 'POST'])
+@login_required
+def make_reservation():
+    if request.method == 'GET':
+        carId  = request.args.get('car_id', None)
 
-            if verification == True:
-                self.path = './templates/admin/admin_start_page.html'
-                file = read_html_template(self.path)
-            else:
-                self.path = './templates/customer/info.html'
-                file = read_html_template(self.path)
-                file = file.replace("$info", "Nie jesteś adminem")
-                file = file.replace("$href", "")
+        if current_user.is_authenticated:
+            logged = True
+            username = current_user.username
+            unread_messages = check_for_unread_messages(username)
+        else:
+            logged = False
+            unread_messages = False
 
-            self.send_response(200, "OK")
-            self.send_header('Content-type', 'text/html; charset=utf-8')
-            self.end_headers()
-            self.wfile.write(bytes(file, 'utf-8'))
+        dates_to_exclude = get_dates_to_exclude(carId)
 
-        if self.path == '/admin/cars':
-            verification = check_if_admin(self, SESSIONS)
+        info = get_reservation_form_info(carId, username)
 
-            if verification == True:
-                self.path = './templates/admin/admin_car_list.html'
-                file = read_html_template(self.path)
-                file = insert_car_table_for_admin(file)
-
-            else:
-                self.path = './templates/customer/info.html'
-                file = read_html_template(self.path)
-                file = file.replace("$info", "Nie jesteś adminem")
-                file = file.replace("$href", "")
-
-            self.send_response(200, "OK")
-            self.send_header('Content-type', 'text/html; charset=utf-8')
-            self.end_headers()
-            self.wfile.write(bytes(file, 'utf-8'))
-
-        if self.path[:23] == '/admin/edit_car?car_id=':
-            
-            verification = check_if_admin(self, SESSIONS)
-
-            if verification == True:
-                car_id = int(self.path[23:])
-                self.path = './templates/admin/add_car.html'
-                file = read_html_template(self.path)
-                file = insert_edit_car_info(file, car_id)
-            else:
-                self.path = './templates/customer/info.html'
-                file = read_html_template(self.path)
-                file = file.replace("$info", "Nie jesteś adminem")
-                file = file.replace("$href", "")
-
-            self.send_response(200, "OK")
-            self.send_header('Content-type', 'text/html; charset=utf-8')
-            self.end_headers()
-            self.wfile.write(bytes(file, 'utf-8'))
-
-        if self.path[:23] == '/admin/add_car':
-            verification = check_if_admin(self, SESSIONS)
-
-            if verification == True:
-                self.path = './templates/admin/add_car.html'
-                file = read_html_template(self.path)
-                file = insert_empty_info(file)
-            else:
-                self.path = './templates/customer/info.html'
-                file = read_html_template(self.path)
-                file = file.replace("$info", "Nie jesteś adminem")
-                file = file.replace("$href", "")
-
-            
-            self.send_response(200, "OK")
-            self.send_header('Content-type', 'text/html; charset=utf-8')
-            self.end_headers()
-            self.wfile.write(bytes(file, 'utf-8'))
-
-        if self.path == '/admin/send_message':
-            verification = check_if_admin(self, SESSIONS)
-
-            if verification == True:
-                self.path = './templates/admin/send_message.html'
-                file = read_html_template(self.path)
-            else:
-                self.path = './templates/customer/info.html'
-                file = read_html_template(self.path)
-                file = file.replace("$info", "Nie jesteś adminem")
-                file = file.replace("$href", "")
-
-            self.send_response(200, "OK")
-            self.send_header('Content-type', 'text/html; charset=utf-8')
-            self.end_headers()
-            self.wfile.write(bytes(file, 'utf-8'))
-
-        if self.path == '/admin/reservations':
-            verification = check_if_admin(self, SESSIONS)
-
-            if verification == True:
-                self.path = './templates/admin/admin_reservations.html'
-                file = read_html_template(self.path)
-                file = insert_reservation_table_for_admin(file)
-
-            else:
-                self.path = './templates/customer/info.html'
-                file = read_html_template(self.path)
-                file = file.replace("$info", "Nie jesteś adminem")
-                file = file.replace("$href", "")
-
-            self.send_response(200, "OK")
-            self.send_header('Content-type', 'text/html; charset=utf-8')
-            self.end_headers()
-            self.wfile.write(bytes(file, 'utf-8'))
-
-
-
-
-
+        return render_template("customer/make_reservation.html", logged=logged, unread_messages=unread_messages, info=info, excludedates=json.dumps(dates_to_exclude))
     
+    if request.method == 'POST':
+        car_id = request.form.get("car_id")
+        user_id = request.form.get("user_id")
+        start = request.form.get("start")
+        end = request.form.get("end")
+        name = request.form.get("name")
+        surname = request.form.get("surname")
+        phonenr = request.form.get("phonenr")
+        email = request.form.get("email")
 
-    def do_POST(self):
-        cookies = self.parse_cookies(self.headers["Cookie"])
-        if "sid" in cookies:
-            if (cookies["sid"] in SESSIONS):
-                self.user = cookies["sid"]
+        car = fetch_car_by_id(car_id)
+
+        car_name = car[0][1] + " - " + car[0][2]
+        reservation_nr = str(uuid.uuid4().int)[:13]
                 
-        if self.path == '/logIn':
-            ctype, pdict = cgi.parse_header(self.headers.get('content-type'))
-            pdict['boundary'] = bytes(pdict['boundary'], 'utf-8')
+        create_receipt(reservation_nr, name, surname, car_name, start, end, user_id, email)
+        insert_reservation_record(reservation_nr ,start, end, car_id, user_id, name, surname, email, phonenr)
 
-            if ctype == 'multipart/form-data':
-                fields = cgi.parse_multipart(self.rfile, pdict)
-                username = fields.get("username")[0]
-                password = fields.get("password")[0]
+        return render_template("customer/info.html", info="Potwierdzenie rezerwacji zostało wysłane na Twój adres email.", href="")
 
+@app.route("/miasta", methods=['GET'])
+def cities():
+    if request.method == 'GET':
+        if current_user.is_authenticated:
+            logged = True
+            username = current_user.username
+            unread_messages = check_for_unread_messages(username)
+        else:
+            logged = False
+            unread_messages = False
 
-            #sprawdzanie zgodnosci hasla
-            verification = check_login_info(username, password)
-            file = read_html_template('./templates/customer/info.html')
+        cities = get_cities()
+        return render_template("customer/cities.html", logged=logged, unread_messages=unread_messages, cities=cities)
 
-            if verification == True:
-                sid = self.generate_sid()
-                self.cookie = "sid={}".format(sid)
-                SESSIONS[sid] = [username]
+@app.route("/oNas", methods=['GET'])
+def about_us():
+    if request.method == 'GET':
+        if current_user.is_authenticated:
+            logged = True
+            username = current_user.username
+            unread_messages = check_for_unread_messages(username)
+        else:
+            logged = False
+            unread_messages = False
 
-                userId = get_user_id_by_username(username)
-                role = get_role_by_userid(userId)
+        #info = get_contact_information()
+        return render_template("customer/aboutus.html", logged=logged, unread_messages=unread_messages)
 
-                if role == "admin":
-                    file = file.replace("$info", "Zalogowano jako admin <br><br> <a href=\"/\"><button class=\"button\">Wyświetl strone jaki klient</button></a><a href=\"/admin\"><button class=\"button\">Wyświetl strone admina</button></a>")
-                    file = file.replace("$href", "")
-                else:
-                    file = file.replace("$info", "Zalogowano")
-                    file = file.replace("$href", "")
-
-            else:
-                file = file.replace("$info", "Niepoprawne dane")
-                file = file.replace("$href", "login_page")
-
-                
-            self.send_response(200, "OK")
-            self.send_header('Content-type','text/html')
-            if hasattr(self, 'cookie'):
-                self.send_header('Set-Cookie', self.cookie)
-            self.end_headers()
-            self.wfile.write(bytes(file, "utf-8"))
-
-
-        if self.path == '/register':
-            ctype, pdict = cgi.parse_header(self.headers.get('content-type'))
-            pdict['boundary'] = bytes(pdict['boundary'], 'utf-8')
-            file = read_html_template('./templates/customer/info.html')
-
-            if ctype == 'multipart/form-data':
-                fields = cgi.parse_multipart(self.rfile, pdict)
-                username = fields.get("username")[0]
-                password = fields.get("password")[0]
-                passwordRetype = fields.get("password_retype")[0]
-
-                
-                if password == passwordRetype:
-
-                    #sprawdzanie czy juz jest taki uzytkownik
-                    records = fetch_user_passwrd_by_username(username)
-                    if len(records) <= 0 :
-                        #dodawanie rekordu
-                        insert_user_record(username, hash_password(password), "", "", "", "client")
-                        file = file.replace("$info", "Zarejestrowano")
-                        file = file.replace("$href", "")
-                    else:
-                        file = file.replace("$info", "Taki użytkownik już istnieje")
-                        file = file.replace("$href", "register_page")
-
-                else:
-                    file = file.replace("$info", "Hasła nie pokrywają się")
-                    file = file.replace("$href", "register_page")
-
-
-                self.send_response(200, "OK")
-                self.end_headers()
-                self.wfile.write(bytes(file, "utf-8"))
-
-
-        if self.path == '/addCar':
-            ctype, pdict = cgi.parse_header(self.headers.get('content-type'))
-            pdict['boundary'] = bytes(pdict['boundary'], 'utf-8')
-            file = read_html_template('./templates/customer/info.html')
-
-            if ctype == 'multipart/form-data':
-                fields = cgi.parse_multipart(self.rfile, pdict)
-                car_id = fields.get("car_id")[0]
-                brand = fields.get("brand")[0]
-                model = fields.get("model")[0]
-                car_type = fields.get("car_type")[0]
-                production_year = fields.get("production_year")[0]
-                fuel_type = fields.get("fuel_type")[0]
-                gearbox_type = fields.get("gearbox_type")[0]
-                price = fields.get("price")[0]
-                city = fields.get("city")[0]
-                image = fields.get("img")[0]
-
-            if car_id == "":
-                insert_car_record(brand, model, car_type, production_year, fuel_type, gearbox_type, price, city, image)
-                file = file.replace("$info", "Dodano")
-                file = file.replace("$href", "admin")
-            else:
-                edit_car_record(car_id, brand, model, car_type, production_year, fuel_type, gearbox_type, price, city, image)
-                file = file.replace("$info", "Zmieniono")
-                file = file.replace("$href", "admin")
-                
-            self.send_response(200, "OK")
-            self.end_headers()
-            self.wfile.write(bytes(file, "utf-8"))
-
-        if self.path == '/search_cars':
-            
-            form = cgi.FieldStorage(
-                fp=self.rfile,
-                headers=self.headers,
-                environ={'REQUEST_METHOD': 'POST'}
-            )
-            csearch = form.getvalue("csearch")
-
-            self.path = './templates/customer/offer.html'
-            file = read_html_template(self.path)
-            file = insert_serached_cars(file, csearch)
-            file = insert_login_button(self, file, SESSIONS)
-            file = insert_autocomplete_data(file)
-            file = insert_filter_options(file)
+@app.route("/messages", methods=['GET'])
+@login_required
+def messages():
+    if request.method == 'GET':
         
-            self.send_response(200, "OK")
-            self.end_headers()
-            self.wfile.write(bytes(file, "utf-8"))
+        messages = get_messages(current_user.username)
+        return render_template("customer/messages.html", messages=messages)
 
-        if self.path == '/filter_cars':
-            
-            form = cgi.FieldStorage(
-                fp=self.rfile,
-                headers=self.headers,
-                environ={'REQUEST_METHOD': 'POST'}
-            )
-            
-            brand = form.getvalue("brand")
-            car_type = form.getvalue("car_type")
-            fuel_type = form.getvalue("fuel_type")
-            gearbox_type = form.getvalue("gearbox_type")
-            city = form.getvalue("city")
+@app.route("/githubauth", methods=['GET'])
+def githubauth():
+    random_state = generate_state()
+    params = {
+        "client_id": CLIENT_ID,
+        "redirect_uri": "http://127.0.0.1:8080/callback",
+        "scope": "repo user",
+        "state": random_state
+    }
 
-            self.path = './templates/customer/offer.html'
-            file = read_html_template(self.path)
-            file = insert_filtered_cars(file, brand, car_type, fuel_type, gearbox_type, city)
-            file = insert_login_button(self, file, SESSIONS)
-            file = insert_autocomplete_data(file)
-            file = insert_filter_options(file)
-        
-            self.send_response(200, "OK")
-            self.end_headers()
-            self.wfile.write(bytes(file, "utf-8"))
+    authorize = Request("GET", "https://github.com/login/oauth/authorize", params=params).prepare()
 
-        if self.path == '/data_edit':
-            ctype, pdict = cgi.parse_header(self.headers.get('content-type'))
-            pdict['boundary'] = bytes(pdict['boundary'], 'utf-8')
+    resp = make_response(redirect(authorize.url))
+    resp.set_cookie('state', random_state)
 
-            file = read_html_template('./templates/customer/info.html')
+    return resp
 
-            if ctype == 'multipart/form-data':
-                fields = cgi.parse_multipart(self.rfile, pdict)
-                username = fields.get("username")[0]
-                password = fields.get("password")[0]
-                passwordRetype = fields.get("password_retype")[0]
-                name = fields.get("name")[0]
-                surname = fields.get("surname")[0]
-                email = fields.get("email")[0]
+@app.route("/callback", methods=['GET'])
+def callback():
+    code  = request.args.get('code', None)
+    state  = request.args.get('state', None)
 
-                
-                if password == passwordRetype:
-                    update_user_record(username, hash_password(password), name, surname, email)
-                    file = file.replace("$info", "Dane zostały zmienione")
-                    file = file.replace("$href", "data_edit")
+    state_cookie = request.cookies.get('state')
 
-                else:
-                    file = file.replace("$info", "Hasła nie pokrywają się")
-                    file = file.replace("$href", "data_edit")
+    if (state_cookie != None):
+        if (state != state_cookie):
+            return render_template("customer/info.html", info="State does not match. Possible authorization_code injection attempt", href="login_page")
+    else:
+        return render_template("customer/info.html", info="Błąd autoryzacji", href="login_page")
 
-                self.send_response(200, "OK")
-                self.end_headers()
-                self.wfile.write(bytes(file, "utf-8"))
+    #request token
+    params = {
+        "client_id": CLIENT_ID,
+        "client_secret": CLIENT_SECRET,
+        "code": code
+    }
+    resp = post("https://github.com/login/oauth/access_token", params=params)
+    access_token = resp.text
 
-        if self.path == '/send_message':
-            ctype, pdict = cgi.parse_header(self.headers.get('content-type'))
-            pdict['boundary'] = bytes(pdict['boundary'], 'utf-8')
+    #request user data
+    param = 'token ' + access_token[13:-36]
+    url = 'https://api.github.com/user'
+    headers = {"Authorization": param}
 
-            if ctype == 'multipart/form-data':
-                fields = cgi.parse_multipart(self.rfile, pdict)
-                username = fields.get("username")[0]
-                content = fields.get("content")[0]
-                currentDateTime = datetime.now()
+    respUserData = get(url=url, headers=headers)
 
-                if 0 == 0:
-                    #TODO sprawdzanie odbiorcy
-                    user_id = get_user_id_by_username(username)
-                    insert_message_record(user_id, content, "unread", currentDateTime)
+    userData = json.loads(respUserData.text)
+    username = "ghUser-" + userData["login"]
 
-            
-                file = read_html_template('./templates/customer/info.html')
-                file = file.replace("$info", "Wiadomość została wysłana")
-                file = file.replace("$href", "/admin")
-                self.send_response(200, "OK")
-                self.send_header('Content-type', 'text/html; charset=utf-8')
-                self.end_headers()
-                self.wfile.write(bytes(file, 'utf-8'))
-                
+    add_gh_user(username)
 
-        if self.path == '/makeReservation':
-            ctype, pdict = cgi.parse_header(self.headers.get('content-type'))
-            pdict['boundary'] = bytes(pdict['boundary'], 'utf-8')
+    user = user_loader(username)
+    login_user(user)
 
-            if ctype == 'multipart/form-data':
-                fields = cgi.parse_multipart(self.rfile, pdict)
-                car_id = fields.get("car_id")[0]
-                user_id = fields.get("user_id")[0]
-                start = fields.get("start")[0]
-                end = fields.get("end")[0]
-                name = fields.get("name")[0]
-                surname = fields.get("surname")[0]
-                phonenr = fields.get("phonenr")[0]
-                email = fields.get("email")[0]
-
-                car = fetch_car_by_id(car_id)
-
-                car_name = car[0][1] + " - " + car[0][2]
-                reservation_nr = str(uuid.uuid4().int)[:13]
-                
-                create_receipt(self, reservation_nr, name, surname, car_name, start, end, user_id, email)
-                insert_reservation_record(reservation_nr ,start, end, car_id, user_id, name, surname, email, phonenr)
-
-                file = read_html_template('./templates/customer/info.html')
-                file = file.replace("$info", "Potwierdzenie rezerwacji zostało wysłane na Twój adres email.")
-                file = file.replace("$href", "")
-                self.send_response(200, "OK")
-                self.send_header('Content-type', 'text/html; charset=utf-8')
-                self.end_headers()
-                self.wfile.write(bytes(file, 'utf-8'))
+    return redirect('/')
 
 
-                
-            
+#admin-----------------------------------------------------------
 
-#------------------------------------------------------------------------------
+@app.route("/admin", methods=['GET'])
+@login_required
+def admin():
+    if request.method == 'GET':
+        verification = check_if_admin(current_user.username)
 
-    def generate_sid(self):
-        return "".join(str(randint(1,9)) for _ in range(100))
+        if verification == True:
+            return render_template("admin/admin_start_page.html")
+        else:
+            return render_template("customer/info.html", info="Nie jesteś adminem", href="")
 
-    def parse_cookies(self, cookie_list):
-        return dict(((c.split("=")) for c in cookie_list.split("; "))) if cookie_list else {}
+@app.route("/admin/cars", methods=['GET'])
+@login_required
+def admin_cars():
+    if request.method == 'GET':
+        verification = check_if_admin(current_user.username)
+
+        if verification == True:
+            cars = get_cars_for_admin()
+            return render_template("admin/admin_car_list.html", cars=cars)
+        else:
+            return render_template("customer/info.html", info="Nie jesteś adminem", href="")
+
+
+@app.route("/admin/edit_car", methods=['GET'])
+@login_required
+def admin_editcar():
+    if request.method == 'GET':
+        verification = check_if_admin(current_user.username)
+
+        if verification == True:
+            car_id  = request.args.get('car_id', None)
+            info = get_edit_car_info( car_id)
+            return render_template("admin/add_car.html", info=info)
+        else:
+            return render_template("customer/info.html", info="Nie jesteś adminem", href="")
+
+@app.route("/admin/add_car", methods=['GET', 'POST'])
+@login_required
+def admin_addcar():
+    if request.method == 'GET':
+        verification = check_if_admin(current_user.username)
+
+        if verification == True:
+            info = get_empty_info()
+            return render_template("admin/add_car.html", info=info)
+        else:
+            return render_template("customer/info.html", info="Nie jesteś adminem", href="")
+
+    if request.method == 'POST':
+        car_id = request.form.get("car_id")
+        brand = request.form.get("brand")
+        model = request.form.get("model")
+        car_type = request.form.get("car_type")
+        production_year = request.form.get("production_year")
+        fuel_type = request.form.get("fuel_type")
+        gearbox_type = request.form.get("gearbox_type")
+        price = request.form.get("price")
+        city = request.form.get("city")
+        image = request.form.get("image")
+
+        if car_id == "":
+            insert_car_record(brand, model, car_type, production_year, fuel_type, gearbox_type, price, city, image)
+            return render_template("customer/info.html", info="Dodano", href="admin")
+        else:
+            edit_car_record(car_id, brand, model, car_type, production_year, fuel_type, gearbox_type, price, city, image)
+            return render_template("customer/info.html", info="Zmieniono", href="admin")
+
+@app.route("/admin/send_message", methods=['GET', 'POST'])
+@login_required
+def send_message():
+    if request.method == 'GET':
+        verification = check_if_admin(current_user.username)
+
+        if verification == True:
+            return render_template("admin/send_message.html")
+        else:
+            return render_template("customer/info.html", info="Nie jesteś adminem", href="")
     
-    def logout(self):
-        if not self.user:
-            return "Can't Log Out: No User Logged In"
-        self.cookie = "sid="
-        del SESSIONS[self.user]
-        return "Logged Out"
+    if request.method == 'POST':
+        username = request.form.get("username")
+        content = request.form.get("content")
+        currentDateTime = datetime.now()
 
-#------------------------------------------------------------------------------
+        if 0 == 0:
+            #TODO sprawdzanie odbiorcy
+            user_id = get_user_id_by_username(username)
+            insert_message_record(user_id, content, "unread", currentDateTime)
+
+        return render_template("customer/info.html", info="Wiadomość została wysłana", href="/admin")
+
+@app.route("/admin/reservations", methods=['GET'])
+@login_required
+def reservations():
+    if request.method == 'GET':
+        verification = check_if_admin(current_user.username)
+
+        if verification == True:
+            reservations = get_reservations_for_admin()
+            return render_template("admin/admin_reservations.html", reservations=reservations)
+        else:
+            return render_template("customer/info.html", info="Nie jesteś adminem", href="")
+
+@app.route("/admin/company_info", methods=['GET', 'POST'])
+@login_required
+def company_info():
+    if request.method == 'GET':
+        verification = check_if_admin(current_user.username)
+
+        if verification == True:
+            info = get_company_info()
+            return render_template("admin/company_info.html", info=info)
+        else:
+            return render_template("customer/info.html", info="Nie jesteś adminem", href="")
+
+    if request.method == 'POST':
+        description = request.form.get("description")
+        phonenr = request.form.get("phonenr")
+        email = request.form.get("email")
+
+        save_info(description, phonenr, email)
+        return render_template("customer/info.html", info="Zaktualizowano informacje", href="admin")
+
+
+#---------------------------------------------------------------
+@app.route("/upload", methods=['GET', 'POST'])
+@login_required
+def upload():
+    if request.method == 'GET':
+        verification = check_if_admin(current_user.username)
+
+        if verification == True:
+            return render_template("admin/upload_video.html")
+        else:
+            return render_template("customer/info.html", info="Nie jesteś adminem", href="")
+
+    if request.method == 'POST':
+        file = request.files["file"]
+        current_chunk = int(request.form["dzchunkindex"])
+
+        if current_chunk == 0:
+            if exists("database/data/video.mp4"):
+                os.rename("database/data/video.mp4", "database/data/video_old.mp4")
+
+        save_path = "database/data/video.mp4"
+        with open(save_path, "ab") as f:
+            f.seek(int(request.form["dzchunkbyteoffset"]))
+            f.write(file.stream.read())
+
+        total_chunks = int(request.form["dztotalchunkcount"])
+
+        # Add 1 since current_chunk is zero-indexed
+        if current_chunk + 1 == total_chunks:
+            # This was the last chunk, the file should be complete and the size we expect
+            if os.path.getsize(save_path) != int(request.form["dztotalfilesize"]):
+                return "Size mismatch.", 500
+            os.remove("database/data/video_old.mp4")
+
+        return "Chunk upload successful.", 200
+
+@app.route("/getImageFromCarDb", methods=['GET'])
+def getImage():
+    carId  = request.args.get('carId', None)
+    data = getImageFromDBByCarId(carId)
+    return data
+
+@app.route("/background2.png", methods=['GET'])
+def background():
+    data = read_bytes_from_file("templates/background2.png")
+    return data
+
+@app.route("/database/data/<filename>", methods=['GET'])
+def getfile(filename):
+    data = read_bytes_from_file("database/data/" + filename)
+    return data
 
 
 
-#http server
-def serve_on_port(port):
-    print(f"Server started http://{HOST}:{port}")
-    server = ThreadingHTTPServer((HOST,port), MyServer)
-    try:
-        server.serve_forever()
-    except KeyboardInterrupt:
-        server.server_close()
-        print("Server stopped successfully")
-        sys.exit(0)
 
-
-def start_app():
+if __name__ == "__main__":
     create_user_table()
     create_car_table()
     create_reservation_table()
     create_messages_table()
     
-    serve_on_port(8080)
-
-
-if __name__ == "__main__":
-    start_app()
+    app.run(host="0.0.0.0", port=8080)
  

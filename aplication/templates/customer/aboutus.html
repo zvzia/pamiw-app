@@ -4,6 +4,16 @@
         <meta charset="utf-8">
         <title>O nas</title>
         <link rel="stylesheet" type="text/css" href="../../static/css/styles.css"/>
+        <script src="../../static/js/jquery-3.6.0.js"></script>
+
+        <script>
+            $.getJSON('../../database/data/companyinfo.json', function(data) {
+                $('#desc').html(data.description);
+                $('#phonenr').append(data.phonenr);
+                $('#email').append(data.email);
+            });
+
+        </script>
     </head>
 
 
@@ -20,7 +30,25 @@
             </div>
 
             <div id="right">
-                $logowanie
+                {% if logged == True %}
+                {% if unread_messages == True %}
+                    <a href="messages">
+                        <button id = "messagesbutton" class="button_new_mes">Wiadomości [Nowe]</button></a> 
+                {% else %}
+                    <a href="messages">
+                        <button id = "messagesbutton" class="button">Wiadomości</button></a>
+                {% endif %}
+
+                <a href="profile_page">
+                    <button class="button">Profil</button></a>
+                <a href="log_out">
+                    <button class="button">Wyloguj się</button></a>
+              {% else %}
+                <a href="login_page">
+                    <button class="button">Zaloguj się</button></a>
+                <a href="register_page">
+                    <button class="button">Zarejestruj się</button></a>
+              {% endif %}
             </div>
             
             
@@ -28,18 +56,21 @@
         <br>
         <div style="text-align: center">
             <h1 style="color:rgb(80, 80, 80)"> O nas</h1>
-            <p>Jesteśmy firmą zajmującą się wynajmem samochodów. blablabla przykładowy tekst</p>
-
+            <p id="desc"></p>
             <br>
-            <h1 style="color:rgb(80, 80, 80)">Kontakt</h1>
-            Telefon: $contactphonenr
-            <br>
-            Email: $contactemail
+            <!-- <iframe width="800" height="480"
+                src="https://www.youtube.com/embed/tgbNymZ7vqY">
+            </iframe> -->
+            <video width="800" height="480" controls>
+                <source src="../../database/data/video.mp4" type="video/mp4">
+            </video>
+            <br><br>
 
-            
-        </div>
-
-
-        
+            <div style="background-color: #f1f1f1d5; padding-top: 5px; padding-bottom: 5px; width: 800px; margin: auto;">
+                <h1 style="color:rgb(80, 80, 80)">Kontakt</h1>
+                <p id="phonenr">Telefon: </p>
+                <p id="email">Email: </p>
+            </div>
+        </div> 
     </body>
 </html>
