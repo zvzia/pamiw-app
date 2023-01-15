@@ -12,14 +12,18 @@
 
         <div class="center">
             <h1>Wiadomości</h1>
-            {% for message in messages %}
-            <br>
-            {% if message.3 == 'unread' %}
-            <p style="border:2px solid rgb(80, 80, 80); background-color: rgb(220, 220, 220);"> Nowa </p>
-            {% endif %}
-            <p> {{ message.2 }}</p>
-            <p style="color:rgb(80, 80, 80); font-size:13px"> {{ message.4[:-10] }}</p><hr>
-            {% endfor %}
+            <div id = "messDiv" class="scroll">
+                {% for message in messages %}
+                <br>
+                <div class="message">
+                    {% if message.3 == 'unread' %}
+                    <p style="border:2px solid rgb(80, 80, 80); background-color: rgb(220, 220, 220); width: 7%; border-radius: 7px; margin: auto;"> Nowa </p>
+                    {% endif %}
+                    <p> {{ message.2 }}</p>
+                    <p style="color:rgb(80, 80, 80); font-size:13px"> {{ message.4[:-10] }}</p>
+                </div>
+                {% endfor %}
+            </div>
             <br><br><br>
 
             <a href="/profile_page">
@@ -27,5 +31,9 @@
             </a>
         </div>
 
+        <script>
+            var objDiv = document.getElementById("messDiv");
+            objDiv.scrollTop = objDiv.scrollHeight;
+        </script>
     </body>
 </html>

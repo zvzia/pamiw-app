@@ -479,7 +479,7 @@ def send_message():
             user_id = get_user_id_by_username(username)
             insert_message_record(user_id, content, "unread", currentDateTime)
 
-        return render_template("customer/info.html", info="Wiadomość została wysłana", href="/admin")
+        return render_template("customer/info.html", info="Wiadomość została wysłana", href="admin")
 
 @app.route("/admin/reservations", methods=['GET'])
 @login_required
