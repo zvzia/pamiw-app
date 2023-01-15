@@ -2,6 +2,7 @@
 <html lang="pl">
     <head>
         <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Wiadomości</title>
 
         <link rel="stylesheet" type="text/css" href="../../static/css/styles.css"/>
@@ -34,6 +35,19 @@
         <script>
             var objDiv = document.getElementById("messDiv");
             objDiv.scrollTop = objDiv.scrollHeight;
+        
+            var eventSource = new EventSource("/listen/{{ username }}")
+            
+            eventSource.addEventListener("message", function(e) {
+            console.log(e.data)
+            }, false)
+
+            eventSource.addEventListener("online", function(e) {
+            data = JSON.parse(e.data)
+            document.querySelector("#messDiv").innerHTML += "<br> <div class=\"message\"> <p style=\"border:2px solid rgb(80, 80, 80); background-color: rgb(220, 220, 220); width: 7%; border-radius: 7px; margin: auto;\"> Nowa </p> " + "<p>" + data.content + "</p> <p style=\"color:rgb(80, 80, 80); font-size:13px\">" + data.date + "</p> </div>"
+            objDiv.scrollTop = objDiv.scrollHeight;
+            }, true)
+
         </script>
     </body>
 </html>

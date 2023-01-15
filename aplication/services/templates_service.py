@@ -201,4 +201,8 @@ def save_info(description, phonenr, email):
     json.dump(json_object, file)
     file.close()
 
-  
+def get_user_new_message(username):
+    user_id = get_user_id_by_username(username)
+    message = get_newest_message_by_user_id(user_id)
+
+    return message

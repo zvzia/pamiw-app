@@ -44,4 +44,11 @@ def change_message_status_by_id(id, status):
     data = cursor.execute("UPDATE Message SET status = '" + status + "' WHERE id = " + str(id))
     connection.commit()
     connection.close()
+
+def get_newest_message_by_user_id(user_id):
+    connection, cursor = connect_to_db()
+    data = cursor.execute("SELECT * FROM Message WHERE user_id = ? AND status = 'unread' ORDER BY id DESC",[user_id])
+    records = cursor.fetchone()
+    connection.close()
+    return records
     

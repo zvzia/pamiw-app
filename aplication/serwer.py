@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, make_response, redirect
+from flask import Flask, render_template, request, make_response, redirect, Response
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from flask_uploads import IMAGES, UploadSet, configure_uploads
 from werkzeug.utils import secure_filename
@@ -329,7 +329,7 @@ def messages():
     if request.method == 'GET':
         
         messages = get_messages(current_user.username)
-        return render_template("customer/messages.html", messages=messages)
+        return render_template("customer/messages.html", messages=messages, username=current_user.username)
 
 @app.route("/githubauth", methods=['GET'])
 def githubauth():
@@ -478,6 +478,8 @@ def send_message():
             #TODO sprawdzanie odbiorcy
             user_id = get_user_id_by_username(username)
             insert_message_record(user_id, content, "unread", currentDateTime)
+            global messStatus
+            messStatus = True
 
         return render_template("customer/info.html", info="Wiadomość została wysłana", href="admin")
 
@@ -566,6 +568,26 @@ def getfile(filename):
     data = read_bytes_from_file("database/data/" + filename)
     return data
 
+
+messStatus = False
+
+@app.route("/listen/<username>")
+def listen(username):
+    def respond_to_client():
+        global messStatus
+        if messStatus:
+            messStatus = False
+            print("*****")
+            message = get_user_new_message(username)
+            if message != None:
+                content = message[2]
+                currentDateTime = message[4][:-10]
+                change_message_status_by_id(message[0], "read")
+
+                _data = json.dumps({"content":content, "date":currentDateTime})
+                yield f"id: 1\ndata: {_data}\nevent: online\n\n"
+    
+    return Response(respond_to_client(), mimetype='text/event-stream')
 
 
 
