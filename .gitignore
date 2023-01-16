@@ -9,3 +9,4 @@
 **/__pycache__/*
 /aplication/test.py
 /aplication/.env
+/aplication/database/data/test.mp4
