@@ -1,7 +1,5 @@
 from flask import Flask, render_template, request, make_response, redirect, Response
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
-from flask_uploads import IMAGES, UploadSet, configure_uploads
-from werkzeug.utils import secure_filename
 from os.path import exists
 from collections import deque
 import os
