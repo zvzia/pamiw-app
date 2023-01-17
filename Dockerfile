@@ -14,8 +14,8 @@ RUN python -m pip install -r requirements.txt
 
 
 COPY . /app
+COPY aplication/lib/arial.ttf /usr/share/fonts/truetype/freefont/arial.ttf
 
-
-#EXPOSE 8080
+EXPOSE 8080
 
 CMD ["python", "serwer.py"]

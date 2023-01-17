@@ -1,7 +1,10 @@
-
 matplotlib
 bcrypt
 websockets
 asyncio
 python-barcode
 reportlab
+flask
+flask_login
+requests
+python-dotenv

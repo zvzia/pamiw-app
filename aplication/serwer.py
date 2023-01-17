@@ -548,7 +548,8 @@ def upload():
             # This was the last chunk, the file should be complete and the size we expect
             if os.path.getsize(save_path) != int(request.form["dztotalfilesize"]):
                 return "Size mismatch.", 500
-            os.remove("database/data/video_old.mp4")
+            if exists("database/data/video_old.mp4"):
+                os.remove("database/data/video_old.mp4")
 
         return "Chunk upload successful.", 200
 
