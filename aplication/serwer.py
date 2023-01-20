@@ -193,7 +193,7 @@ def register():
     if request.method == "POST":
         username = request.form.get("username")
         password = request.form.get("password")
-        password_retyped = request.form.get("password_retyped")
+        password_retyped = request.form.get("password_retype")
 
         
         if password == password_retyped:
