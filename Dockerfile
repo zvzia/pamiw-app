@@ -18,8 +18,4 @@ COPY aplication/lib/arial.ttf /usr/share/fonts/truetype/freefont/arial.ttf
 
 EXPOSE 8080
 
-RUN apt-get update
-RUN apt-get install docker
-RUN docker run -p 6379:6379 redis
-
 CMD ["python", "serwer.py"]

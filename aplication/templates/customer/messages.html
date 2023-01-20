@@ -36,7 +36,7 @@
             var objDiv = document.getElementById("messDiv");
             objDiv.scrollTop = objDiv.scrollHeight;
         
-            var eventSource = new EventSource("{{ url_for('sse.stream') }}")
+            var eventSource = new EventSource("/listen/{{ username }}")
             
             eventSource.addEventListener("message", function(e) {
             console.log(e.data)

@@ -30,21 +30,7 @@ CLIENT_ID = os.getenv("CLIENT_ID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 dotenv.load_dotenv(verbose=True)
 
-redis_url = "redis://127.0.0.1"
 app = Flask(__name__)
-app.config["REDIS_URL"] = redis_url
-db = StrictRedis.from_url(redis_url, decode_responses=True)
-
-try:
-  db.echo("ping")
-except:
-  print("ERROR communicating with Redis database.")
-  print("Start Redis instance first. Exiting.")
-  exit(1)
-
-from flask import url_for
-from flask_sse import sse
-app.register_blueprint(sse, url_prefix="/stream")
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -492,9 +478,8 @@ def send_message():
             #TODO sprawdzanie odbiorcy
             user_id = get_user_id_by_username(username)
             insert_message_record(user_id, content, "unread", currentDateTime)
-            #global messStatus
-            #messStatus = True
-            sse.publish({"content":content, "date":currentDateTime, "username":username}, type='greeting')
+            global messStatus
+            messStatus = True
 
         return render_template("customer/info.html", info="Wiadomość została wysłana", href="admin")
 
