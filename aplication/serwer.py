@@ -207,9 +207,9 @@ def register():
                 login_user(user)
                 return redirect('/start_page')
             else:
-                return render_template("customer/info.html", info="Taki użytkownik już istnieje", href="register_page")
+                return render_template("customer/info.html", info="Taki użytkownik już istnieje", href="register")
         else:
-            return render_template("customer/info.html", info="Hasła nie pokrywają się", href="register_page")
+            return render_template("customer/info.html", info="Hasła nie pokrywają się", href="register")
 
 @app.route("/profile_page", methods=['GET'])
 @login_required
