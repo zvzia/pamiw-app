@@ -9,6 +9,8 @@ import json
 
 from requests import Request, post, get
 
+from redis import StrictRedis
+
 from database.user_db import *
 from database.reservation_db import *
 from database.car_db import *
@@ -28,7 +30,21 @@ CLIENT_ID = os.getenv("CLIENT_ID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 dotenv.load_dotenv(verbose=True)
 
+redis_url = "redis://127.0.0.1"
 app = Flask(__name__)
+app.config["REDIS_URL"] = redis_url
+db = StrictRedis.from_url(redis_url, decode_responses=True)
+
+try:
+  db.echo("ping")
+except:
+  print("ERROR communicating with Redis database.")
+  print("Start Redis instance first. Exiting.")
+  exit(1)
+
+from flask import url_for
+from flask_sse import sse
+app.register_blueprint(sse, url_prefix="/stream")
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -216,7 +232,7 @@ def profilePage():
     role = get_role_by_username(username)[0]
     unread_messages = check_for_unread_messages(username)
 
-    return render_template("customer/profile_page.html", role=role, logged=True, unread_messages=unread_messages)
+    return render_template("customer/profile_page.html", role=role, logged=True, unread_messages=unread_messages, username=username)
 
 @app.route("/data_edit", methods=["GET","POST"])
 @login_required
@@ -476,8 +492,9 @@ def send_message():
             #TODO sprawdzanie odbiorcy
             user_id = get_user_id_by_username(username)
             insert_message_record(user_id, content, "unread", currentDateTime)
-            global messStatus
-            messStatus = True
+            #global messStatus
+            #messStatus = True
+            sse.publish({"content":content, "date":currentDateTime, "username":username}, type='greeting')
 
         return render_template("customer/info.html", info="Wiadomość została wysłana", href="admin")
 
@@ -566,6 +583,7 @@ def background():
 def getfile(filename):
     data = read_bytes_from_file("database/data/" + filename)
     return data
+
 
 
 messStatus = False

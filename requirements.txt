@@ -8,3 +8,6 @@ flask
 flask_login
 requests
 python-dotenv
+flask-sse
+gunicorn
+gevent
