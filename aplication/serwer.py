@@ -205,7 +205,7 @@ def register():
 
                 user = user_loader(username)
                 login_user(user)
-                return redirect('/start_page')
+                return redirect('/')
             else:
                 return render_template("customer/info.html", info="Taki użytkownik już istnieje", href="register")
         else:
